@@ -1,28 +1,286 @@
-<!doctype html>
-<html lang="pt-BR">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Aprenda a criar vídeos automotivos com estética cinematográfica usando o celular.">
-  <title>TLX Lab — Aprenda a criar vídeos como os meus</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root{--pink:#f21b73;--bg:#08070b;--card:#111016;--line:#29252f;--muted:#aaa3b2;--white:#f8f7fb}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--white);font-family:'DM Sans',sans-serif}.wrap{max-width:1200px;margin:auto;padding:0 32px}a{text-decoration:none;color:inherit}.top{position:absolute;z-index:3;left:0;right:0;top:0;padding:26px 0}.top .wrap{display:flex;align-items:center;justify-content:space-between}.brand{display:flex;align-items:center;gap:11px;font:700 13px 'Space Grotesk';letter-spacing:.2em}.mark{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:var(--pink);box-shadow:0 0 28px #f21b7355}.brand b{color:var(--pink)}.top-cta{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.12em}.hero{min-height:760px;position:relative;display:flex;align-items:center;overflow:hidden;background:linear-gradient(90deg,#08070b 0%,rgba(8,7,11,.87) 30%,rgba(8,7,11,.2) 75%),url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=2200&q=85') center/cover}.hero:after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,7,11,.2),transparent 55%,var(--bg));pointer-events:none}.hero .wrap{position:relative;z-index:1;width:100%;padding-top:90px}.eyebrow,.kicker{color:var(--pink);font:700 11px 'Space Grotesk';letter-spacing:.2em;text-transform:uppercase}.eyebrow:before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--pink);box-shadow:0 0 0 5px #f21b7333;margin-right:10px}.hero h1{font:600 clamp(52px,7vw,94px)/.95 'Space Grotesk';letter-spacing:-.07em;max-width:620px;margin:26px 0}.pink{color:var(--pink)}.hero p{color:#d0cad5;line-height:1.6;font-size:17px;max-width:470px}.btn{display:inline-flex;align-items:center;gap:12px;background:var(--pink);color:#fff;padding:17px 22px;border-radius:5px;font-weight:700;font-size:13px;margin-top:14px;box-shadow:0 12px 30px #f21b7330;transition:.2s}.btn:hover{transform:translateY(-3px);box-shadow:0 18px 35px #f21b7355}.proof{display:flex;gap:11px;align-items:center;color:var(--muted);font-size:12px;margin-top:26px}.proof strong{color:#fff}.faces{display:flex}.faces span{display:grid;place-items:center;width:27px;height:27px;border:2px solid var(--bg);border-radius:50%;margin-left:-6px;background:#302b3a;font-size:11px}.faces span:first-child{margin-left:0;background:var(--pink)}.stats{border-top:1px solid var(--line);border-bottom:1px solid var(--line);display:grid;grid-template-columns:repeat(3,1fr);max-width:1200px;margin:auto}.stats div{padding:25px 10px;text-align:center}.stats strong{font:600 32px 'Space Grotesk';color:var(--pink);margin-right:10px}.stats span{font-size:12px;color:var(--muted)}section.content{padding:125px 0}.section-title{display:flex;align-items:end;justify-content:space-between;gap:30px;margin:20px 0 55px}.section-title h2,.offer h2,.final h2{font:600 clamp(40px,5vw,64px)/.98 'Space Grotesk';letter-spacing:-.06em;margin:0}.section-title p,.offer-copy>p{max-width:330px;color:var(--muted);line-height:1.6;margin:0}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.lesson{min-height:280px;padding:27px;background:var(--card);border:1px solid var(--line);position:relative;transition:.25s}.lesson:hover{border-color:var(--pink);transform:translateY(-5px)}.lesson-top{display:flex;justify-content:space-between;color:var(--pink)}.num{font:500 12px 'Space Grotesk';color:#776e7e}.lesson h3{font:500 23px 'Space Grotesk';margin:74px 0 12px}.lesson p{color:var(--muted);font-size:14px;line-height:1.6;margin:0}.arrow{position:absolute;right:25px;bottom:23px;color:var(--pink);font-size:24px}.visual{height:330px;display:flex;align-items:end;padding:38px;margin-bottom:20px;background:linear-gradient(90deg,rgba(9,7,12,.9),rgba(9,7,12,.1)),url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1800&q=85') center/cover}.visual strong,.visual span{display:block}.visual span{font-size:10px;text-transform:uppercase;letter-spacing:.15em}.visual strong{font:500 18px 'Space Grotesk';margin-top:5px}.offer{display:grid;grid-template-columns:1fr 400px;gap:90px;align-items:center}.offer h2{margin:22px 0}.checks{display:grid;gap:14px;margin-top:30px;color:#d8d2dc;font-size:14px}.checks span:before{content:'✓';color:var(--pink);font-weight:700;margin-right:10px}.price-card{padding:34px;background:var(--white);color:#100c14;box-shadow:20px 20px 0 var(--pink)}.tag{font:700 10px 'Space Grotesk';letter-spacing:.18em;color:#706775}.price{font:700 72px/1 'Space Grotesk';letter-spacing:-.08em;margin:25px 0 5px}.price small{font-size:19px;vertical-align:top;letter-spacing:0}.price sup{font-size:28px}.price-card p{color:#706775;font-size:13px;margin:0 0 25px}.price-card .btn{width:100%;justify-content:center;margin:0}.secure{text-align:center;color:#706775;font-size:11px;margin-top:16px}.faq{max-width:850px}.faq h2{margin:20px 0 42px}.question{width:100%;padding:24px 0;background:none;border:0;border-bottom:1px solid var(--line);color:#fff;text-align:left;font:500 16px 'Space Grotesk';display:flex;justify-content:space-between;cursor:pointer}.answer{display:none;color:var(--muted);font-size:14px;line-height:1.6;padding:0 35px 20px 0}.question.open+.answer{display:block}.final{text-align:center;padding:110px 20px;background:radial-gradient(circle at center,#341229,transparent 58%)}.final h2{margin:20px 0 28px}footer{border-top:1px solid var(--line);padding:25px 32px;display:flex;justify-content:space-between;color:#706775;font-size:11px;text-transform:uppercase;letter-spacing:.1em;max-width:1200px;margin:auto}@media(max-width:750px){.wrap{padding:0 20px}.hero{min-height:720px;align-items:end}.hero h1{font-size:57px}.stats strong{display:block;font-size:26px}.stats span{font-size:10px}.content{padding:85px 0!important}.section-title{display:block;margin-bottom:35px}.section-title p{margin-top:20px}.grid{grid-template-columns:1fr}.lesson{min-height:230px}.lesson h3{margin-top:48px}.visual{height:260px;padding:22px}.offer{display:block}.price-card{margin-top:45px;box-shadow:10px 10px 0 var(--pink)}footer{padding:22px 20px;display:block}footer span{display:block;margin:5px 0}}
-  </style>
-</head>
-<body>
-  <header class="top"><div class="wrap"><a class="brand" href="#topo"><span class="mark">▣</span><span>TLX <b>LAB</b></span></a><a class="top-cta" href="#oferta">Quero aprender →</a></div></header>
-  <main id="topo">
-    <section class="hero"><div class="wrap"><div class="eyebrow">Método TLX · edição automotiva</div><h1>Faça vídeos que <span class="pink">param</span> o scroll.</h1><p>Aprenda a criar vídeos de carros com estética cinematográfica, mesmo começando do zero e usando o celular.</p><a class="btn" href="https://wa.me/556791014307?text=Ol%C3%A1!%20Quero%20aprender%20a%20criar%20v%C3%ADdeos%20iguais%20aos%20seus.%20Como%20fa%C3%A7o%20para%20comprar%3F">Quero aprender agora →</a><div class="proof"><div class="faces"><span>t</span><span>r</span><span>v</span></div><span><strong>+1.800 pessoas</strong> já acompanham meu trabalho</span></div></div></section>
-    <div class="stats"><div><strong>17</strong><span>reais para começar</span></div><div><strong>3</strong><span>etapas sem enrolação</span></div><div><strong>∞</strong><span>acesso ao material</span></div></div>
-    <section class="content"><div class="wrap"><div class="kicker">O que você vai aprender</div><div class="section-title"><h2>Seu próximo vídeo<br><span class="pink">começa aqui.</span></h2><p>Um método direto para transformar cenas simples em vídeos com presença, ritmo e personalidade.</p></div><div class="grid"><article class="lesson"><div class="lesson-top"><span class="num">01</span><span>◉</span></div><h3>Grave do jeito certo</h3><p>Ângulos, movimento e luz para deixar o carro com cara de cena de filme — usando o celular.</p><span class="arrow">↗</span></article><article class="lesson"><div class="lesson-top"><span class="num">02</span><span>✂</span></div><h3>Edite sem complicar</h3><p>Cortes no ritmo, transições, velocidade e detalhes que seguram atenção até o final.</p><span class="arrow">↗</span></article><article class="lesson"><div class="lesson-top"><span class="num">03</span><span>✦</span></div><h3>Crie sua assinatura</h3><p>Cores, efeitos e acabamento para seus vídeos terem identidade e um visual marcante.</p><span class="arrow">↗</span></article></div></div></section>
-    <div class="wrap"><div class="visual"><div><span>assista ao resultado</span><strong>do primeiro take ao vídeo final</strong></div></div></div>
-    <section class="content" id="oferta"><div class="wrap offer"><div class="offer-copy"><div class="kicker">Comece hoje</div><h2>Seu conteúdo<br><span class="pink">pode ir mais longe.</span></h2><p>Você não precisa esperar ter o cenário perfeito. Precisa saber olhar, gravar e editar com intenção.</p><div class="checks"><span>Aulas práticas e objetivas</span><span>Técnicas para usar no celular</span><span>Acesso imediato pelo WhatsApp</span></div></div><div class="price-card"><div class="tag">ACESSO AO MÉTODO</div><div class="price"><small>R$</small>17<sup>,00</sup></div><p>pagamento único</p><a class="btn" href="https://wa.me/556791014307?text=Ol%C3%A1!%20Quero%20aprender%20a%20criar%20v%C3%ADdeos%20iguais%20aos%20seus.%20Como%20fa%C3%A7o%20para%20comprar%3F">💬 Comprar pelo WhatsApp</a><div class="secure">✓ atendimento direto e seguro</div></div></div></section>
-    <section class="content faq"><div class="wrap"><div class="kicker">Ainda tem dúvida?</div><h2>Perguntas rápidas.</h2><div class="questions"><button class="question">Preciso ter uma câmera profissional? <span>⌄</span></button><div class="answer">Não. O método foi pensado para você começar com o celular e evoluir com o equipamento que já tem.</div><button class="question">O acesso é por quanto tempo? <span>⌄</span></button><div class="answer">O material é seu para consultar sempre que precisar. Após a confirmação, você recebe as orientações pelo WhatsApp.</div><button class="question">Como eu pago? <span>⌄</span></button><div class="answer">Clique em qualquer botão de compra e fale comigo no WhatsApp. Eu te passo os dados e confirmo seu acesso.</div></div></div></section>
-    <section class="final"><div class="kicker">TLX LAB</div><h2>Pronto para criar<br><span class="pink">algo insano?</span></h2><a class="btn" href="https://wa.me/556791014307?text=Ol%C3%A1!%20Quero%20aprender%20a%20criar%20v%C3%ADdeos%20iguais%20aos%20seus.%20Como%20fa%C3%A7o%20para%20comprar%3F">Falar comigo →</a></section>
-  </main><footer><span>© 2026 TLX LAB</span><span>feito para quem cria diferente.</span></footer>
-  <script>document.querySelectorAll('.question').forEach(q=>q.addEventListener('click',()=>q.classList.toggle('open')));</script>
-</body>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                           </html>
+require("dotenv").config();
+
+const {
+  Client,
+  GatewayIntentBits,
+  REST,
+  Routes,
+  SlashCommandBuilder,
+  EmbedBuilder,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  PermissionFlagsBits,
+  ChannelType
+} = require("discord.js");
+
+const client = new Client({
+  intents: [GatewayIntentBits.Guilds]
+});
+
+// ===============================
+// CONFIGURAÇÃO DO PRODUTO
+// ===============================
+
+let produto = {
+  nome: "SERAPHIM HUB",
+  preco: "9.50",
+  estoque: 1
+};
+
+// ===============================
+// COMANDOS
+// ===============================
+
+const commands = [
+  new SlashCommandBuilder()
+    .setName("configurar")
+    .setDescription("Configura o produto")
+    .setDefaultMemberPermissions(
+      PermissionFlagsBits.Administrator
+    )
+    .addStringOption(option =>
+      option
+        .setName("nome")
+        .setDescription("Nome que os clientes verão")
+        .setRequired(true)
+    )
+    .addStringOption(option =>
+      option
+        .setName("preco")
+        .setDescription("Preço do produto")
+        .setRequired(true)
+    )
+    .addIntegerOption(option =>
+      option
+        .setName("quantidade")
+        .setDescription("Quantidade disponível")
+        .setRequired(true)
+        .setMinValue(1)
+    ),
+
+  new SlashCommandBuilder()
+    .setName("painel")
+    .setDescription("Envia o painel de compra")
+].map(command => command.toJSON());
+
+// ===============================
+// REGISTRAR COMANDOS
+// ===============================
+
+async function registrarComandos() {
+  const rest = new REST({ version: "10" })
+    .setToken(process.env.DISCORD_TOKEN);
+
+  await rest.put(
+    Routes.applicationGuildCommands(
+      process.env.CLIENT_ID,
+      process.env.GUILD_ID
+    ),
+    {
+      body: commands
+    }
+  );
+
+  console.log("✅ Comandos registrados!");
+}
+
+// ===============================
+// BOT ONLINE
+// ===============================
+
+client.once("ready", () => {
+  console.log(
+    `🪽 SERAPHIM BOT online como ${client.user.tag}`
+  );
+});
+
+// ===============================
+// INTERAÇÕES
+// ===============================
+
+client.on("interactionCreate", async interaction => {
+
+  // -------------------------------
+  // SLASH COMMANDS
+  // -------------------------------
+
+  if (interaction.isChatInputCommand()) {
+
+    // /configurar
+    if (interaction.commandName === "configurar") {
+
+      produto.nome =
+        interaction.options.getString("nome");
+
+      produto.preco =
+        interaction.options.getString("preco");
+
+      produto.estoque =
+        interaction.options.getInteger("quantidade");
+
+      return interaction.reply({
+        content:
+          `✅ **Produto atualizado!**\n\n` +
+          `📦 ${produto.nome}\n` +
+          `💰 R$ ${produto.preco}\n` +
+          `📦 Estoque: ${produto.estoque}`,
+        ephemeral: true
+      });
+    }
+
+    // /painel
+    if (interaction.commandName === "painel") {
+
+      const embed = new EmbedBuilder()
+        .setTitle("🪽 SERAPHIM HUB")
+        .setDescription(
+          `📦 **${produto.nome}**\n\n` +
+          `💰 **R$ ${produto.preco}**\n` +
+          `📦 **Estoque:** ${produto.estoque}\n\n` +
+          `Clique no botão abaixo para comprar.`
+        );
+
+      const botoes = new ActionRowBuilder()
+        .addComponents(
+          new ButtonBuilder()
+            .setCustomId("comprar")
+            .setLabel("Comprar")
+            .setEmoji("🛒")
+            .setStyle(ButtonStyle.Success)
+        );
+
+      return interaction.reply({
+        embeds: [embed],
+        components: [botoes]
+      });
+    }
+  }
+
+  // -------------------------------
+  // BOTÕES
+  // -------------------------------
+
+  if (!interaction.isButton()) return;
+
+  // COMPRAR
+  if (interaction.customId === "comprar") {
+
+    if (produto.estoque <= 0) {
+      return interaction.reply({
+        content: "❌ Produto sem estoque.",
+        ephemeral: true
+      });
+    }
+
+    const pedido = new EmbedBuilder()
+      .setTitle("🧾 Pedido criado")
+      .setDescription(
+        `📦 **Produto:** ${produto.nome}\n` +
+        `🔢 **Quantidade:** 1\n` +
+        `💰 **Total:** R$ ${produto.preco}\n\n` +
+        `💳 Faça o pagamento pelo Pix configurado pelo administrador.\n\n` +
+        `📸 Depois do pagamento, clique em ` +
+        `**Enviar comprovante**.`
+      );
+
+    const botoes = new ActionRowBuilder()
+      .addComponents(
+        new ButtonBuilder()
+          .setCustomId("enviar_comprovante")
+          .setLabel("Enviar comprovante")
+          .setEmoji("📸")
+          .setStyle(ButtonStyle.Primary)
+      );
+
+    return interaction.reply({
+      embeds: [pedido],
+      components: [botoes],
+      ephemeral: true
+    });
+  }
+
+  // COMPROVANTE
+  if (interaction.customId === "enviar_comprovante") {
+
+    const guild = interaction.guild;
+
+    const canal = await guild.channels.create({
+      name: `pedido-${interaction.user.id}`,
+      type: ChannelType.GuildText,
+
+      permissionOverwrites: [
+        {
+          id: guild.roles.everyone.id,
+          deny: [
+            PermissionFlagsBits.ViewChannel
+          ]
+        },
+        {
+          id: interaction.user.id,
+          allow: [
+            PermissionFlagsBits.ViewChannel,
+            PermissionFlagsBits.SendMessages,
+            PermissionFlagsBits.AttachFiles
+          ]
+        }
+      ]
+    });
+
+    await canal.send({
+      content:
+        `🎫 **Pedido de ${interaction.user}**\n\n` +
+        `📦 Produto: **${produto.nome}**\n` +
+        `💰 Valor: **R$ ${produto.preco}**\n\n` +
+        `📸 **Envie o comprovante aqui.**\n\n` +
+        `⏳ Aguardando análise do administrador.`
+    });
+
+    return interaction.reply({
+      content:
+        `✅ Seu ticket foi criado: ${canal}`,
+      ephemeral: true
+    });
+  }
+});
+
+// ===============================
+// INICIAR
+// ===============================
+
+async function iniciar() {
+  try {
+
+    if (!process.env.DISCORD_TOKEN) {
+      throw new Error(
+        "DISCORD_TOKEN não configurado."
+      );
+    }
+
+    if (!process.env.CLIENT_ID) {
+      throw new Error(
+        "CLIENT_ID não configurado."
+      );
+    }
+
+    if (!process.env.GUILD_ID) {
+      throw new Error(
+        "GUILD_ID não configurado."
+      );
+    }
+
+    await registrarComandos();
+
+    await client.login(
+      process.env.DISCORD_TOKEN
+    );
+
+  } catch (erro) {
+    console.error(
+      "❌ Erro ao iniciar:",
+      erro
+    );
+  }
+}
+
+iniciar();
