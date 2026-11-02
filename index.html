@@ -1,247 +1,185 @@
 
+import os, re, sqlite3, secrets, hashlib, hmac, html
+from pathlib import Path
+from functools import wraps
+from flask import Flask, request, jsonify, session, g
 
+BASE = Path(__file__).parent
+DB = BASE / "codehub.db"
+KEY = BASE / ".secret_key"
 
-    
-    
-    
+if not KEY.exists():
+    KEY.write_text(secrets.token_hex(32))
 
-<style>
-    * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-    }
+app = Flask(__name__)
+app.secret_key = KEY.read_text()
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+    MAX_CONTENT_LENGTH=512 * 1024
+)
 
-    body {
-        background: #080b12;
-        color: white;
-        font-family: Arial, sans-serif;
-        height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        overflow: hidden;
-    }
+def banco():
+    if "db" not in g:
+        g.db = sqlite3.connect(DB)
+        g.db.execute("PRAGMA foreign_keys=ON")
+    return g.db
 
-    .titulo {
-        font-size: 22px;
-        letter-spacing: 3px;
-        font-weight: bold;
-    }
+@app.teardown_appcontext
+def fechar(exc):
+    db = g.pop("db", None)
+    if db:
+        db.close()
 
-    /* Bolinha minúscula */
-    #botaoAcesso {
-        position: fixed;
-        top: 8px;
-        right: 8px;
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: #5da9ff;
-        cursor: pointer;
-        opacity: 0.7;
-        transition: 0.2s;
-    }
+def hash_senha(s):
+    salt = os.urandom(16)
+    h = hashlib.scrypt(s.encode(), salt=salt,
+                       n=2**14, r=8, p=1)
+    return salt.hex() + ":" + h.hex()
 
-    #botaoAcesso:hover {
-        opacity: 1;
-        transform: scale(1.3);
-    }
+def verificar(s, armazenada):
+    salt, antigo = armazenada.split(":")
+    novo = hashlib.scrypt(
+        s.encode(), salt=bytes.fromhex(salt),
+        n=2**14, r=8, p=1
+    ).hex()
+    return hmac.compare_digest(antigo, novo)
 
-    /* Caixa de login */
-    #login {
-        display: none;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 280px;
-        padding: 24px;
-        background: #10151f;
-        border: 1px solid #263247;
-        border-radius: 12px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-    }
-
-    #login h2 {
-        font-size: 18px;
-        margin-bottom: 16px;
-    }
-
-    #senha {
-        width: 100%;
-        padding: 11px;
-        background: #080b12;
-        color: white;
-        border: 1px solid #303c52;
-        border-radius: 7px;
-        outline: none;
-        margin-bottom: 10px;
-    }
-
-    #entrar {
-        width: 100%;
-        padding: 11px;
-        border: 0;
-        border-radius: 7px;
-        background: #3d8bfd;
-        color: white;
-        font-weight: bold;
-        cursor: pointer;
-    }
-
-    #mensagem {
-        margin-top: 10px;
-        font-size: 12px;
-        text-align: center;
-        color: #ff6b6b;
-    }
-
-    /* Painel */
-    #painel {
-        display: none;
-        width: min(900px, 92%);
-    }
-
-    #painel h1 {
-        margin-bottom: 8px;
-    }
-
-    #painel p {
-        color: #8f9bad;
-        margin-bottom: 20px;
-    }
-
-    .card {
-        background: #10151f;
-        border: 1px solid #263247;
-        border-radius: 10px;
-        padding: 18px;
-    }
-
-    textarea {
-        width: 100%;
-        height: 300px;
-        resize: vertical;
-        background: #080b12;
-        color: #dbe7ff;
-        border: 1px solid #303c52;
-        border-radius: 8px;
-        padding: 14px;
-        font-family: monospace;
-        font-size: 14px;
-        outline: none;
-    }
-
-    #salvar {
-        margin-top: 12px;
-        padding: 10px 18px;
-        border: 0;
-        border-radius: 7px;
-        background: #3d8bfd;
-        color: white;
-        font-weight: bold;
-        cursor: pointer;
-    }
-</style>
-
-
-
-
-
-<div class="titulo" id="bloqueado">
-    ACESSO RESTRITO
-</div>
-
-<div id="botaoAcesso" title="Acesso"></div>
-
-<div id="login">
-    <h2>Acesso restrito</h2>
-
-    <input
-        id="senha"
-        type="password"
-        placeholder="Digite a senha"
-        autocomplete="off"
-    >
-
-    <button id="entrar">ENTRAR</button>
-
-    <div id="mensagem"></div>
-</div>
-
-<main id="painel">
-    <h1>Biblioteca Lua</h1>
-    <p>Seu espaço privado para armazenar scripts Lua.</p>
-
-    <div class="card">
-        <textarea id="codigo" placeholder="Cole seu código Lua aqui..."></textarea>
-        <button id="salvar">SALVAR</button>
-    </div>
-</main>
-
-<script>
-    /*
-     * PROTEÇÃO SIMPLES
-     *
-     * Esta é apenas uma versão inicial.
-     * Para segurança real, a senha deve ser validada
-     * pelo Cloudflare Worker e não pelo navegador.
-     */
-
-    const senhaCorreta = "guizinho0dx_0///code";
-
-    const botaoAcesso = document.getElementById("botaoAcesso");
-    const login = document.getElementById("login");
-    const senha = document.getElementById("senha");
-    const entrar = document.getElementById("entrar");
-    const mensagem = document.getElementById("mensagem");
-    const bloqueado = document.getElementById("bloqueado");
-    const painel = document.getElementById("painel");
-
-    botaoAcesso.addEventListener("click", () => {
-        login.style.display = "block";
-        senha.focus();
-    });
-
-    entrar.addEventListener("click", verificarSenha);
-
-    senha.addEventListener("keydown", (event) => {
-        if (event.key === "Enter") {
-            verificarSenha();
-        }
-    });
-
-    function verificarSenha() {
-        if (senha.value === senhaCorreta) {
-            login.style.display = "none";
-            bloqueado.style.display = "none";
-            botaoAcesso.style.display = "none";
-            painel.style.display = "block";
-        } else {
-            mensagem.textContent = "Senha incorreta.";
-            senha.value = "";
-            senha.focus();
-        }
-    }
-
-    document.getElementById("salvar").addEventListener("click", () => {
-        localStorage.setItem(
-            "meu_script_lua",
-            document.getElementById("codigo").value
+def inicializar():
+    with sqlite3.connect(DB) as db:
+        db.executescript("""
+        CREATE TABLE IF NOT EXISTS usuarios(
+            id INTEGER PRIMARY KEY,
+            nome TEXT UNIQUE NOT NULL,
+            senha TEXT NOT NULL
         );
+        CREATE TABLE IF NOT EXISTS repos(
+            id INTEGER PRIMARY KEY,
+            usuario_id INTEGER NOT NULL REFERENCES usuarios(id),
+            nome TEXT NOT NULL,
+            descricao TEXT DEFAULT '',
+            privado INTEGER DEFAULT 1
+        );
+        CREATE TABLE IF NOT EXISTS arquivos(
+            id INTEGER PRIMARY KEY,
+            repo_id INTEGER NOT NULL REFERENCES repos(id),
+            caminho TEXT NOT NULL,
+            conteudo TEXT NOT NULL
+        );
+        """)
 
-        alert("Código salvo neste navegador.");
-    });
+def login_obrigatorio(f):
+    @wraps(f)
+    def wrapper(*a, **kw):
+        if "uid" not in session:
+            return jsonify(erro="Faça login"), 401
+        return f(*a, **kw)
+    return wrapper
 
-    const codigoSalvo = localStorage.getItem("meu_script_lua");
+@app.post("/cadastro")
+def cadastro():
+    d = request.get_json(silent=True) or {}
+    nome, senha = d.get("usuario", ""), d.get("senha", "")
 
-    if (codigoSalvo) {
-        document.getElementById("codigo").value = codigoSalvo;
-    }
-</script>
+    if not re.fullmatch(r"[A-Za-z0-9_]{3,20}", nome):
+        return jsonify(erro="Usuário inválido"), 400
 
+    if len(senha) < 12:
+        return jsonify(erro="Senha precisa de 12 caracteres"), 400
 
+    try:
+        banco().execute(
+            "INSERT INTO usuarios(nome,senha) VALUES (?,?)",
+            (nome, hash_senha(senha))
+        )
+        banco().commit()
+        return jsonify(ok=True)
+    except sqlite3.IntegrityError:
+        return jsonify(erro="Usuário já existe"), 409
 
+@app.post("/login")
+def entrar():
+    d = request.get_json(silent=True) or {}
+    u, s = d.get("usuario", ""), d.get("senha", "")
 
+    user = banco().execute(
+        "SELECT id,senha FROM usuarios WHERE nome=?",
+        (u,)
+    ).fetchone()
 
+    if not user or not verificar(s, user[1]):
+        return jsonify(erro="Login inválido"), 401
+
+    session.clear()
+    session["uid"] = user[0]
+    session.permanent = True
+    return jsonify(ok=True)
+
+@app.post("/sair")
+def sair():
+    session.clear()
+    return jsonify(ok=True)
+
+@app.post("/repos")
+@login_obrigatorio
+def criar_repo():
+    d = request.get_json(silent=True) or {}
+    nome = d.get("nome", "")
+
+    if not re.fullmatch(r"[A-Za-z0-9_-]{1,40}", nome):
+        return jsonify(erro="Nome inválido"), 400
+
+    banco().execute(
+        "INSERT INTO repos(usuario_id,nome,descricao) VALUES (?,?,?)",
+        (session["uid"], nome, d.get("descricao", ""))
+    )
+    banco().commit()
+    return jsonify(ok=True)
+
+@app.get("/repos")
+@login_obrigatorio
+def listar():
+    repos = banco().execute(
+        "SELECT id,nome,descricao,privado FROM repos WHERE usuario_id=?",
+        (session["uid"],)
+    ).fetchall()
+    return jsonify(repos=[
+        dict(id=r[0], nome=r[1], descricao=html.escape(r[2]),
+             privado=bool(r[3])) for r in repos
+    ])
+
+@app.post("/repos/<int:rid>/arquivos")
+@login_obrigatorio
+def arquivo(rid):
+    d = request.get_json(silent=True) or {}
+    caminho = d.get("caminho", "")
+    conteudo = d.get("conteudo", "")
+
+    if len(conteudo.encode()) > 200000:
+        return jsonify(erro="Arquivo muito grande"), 413
+
+    if not re.fullmatch(r"[A-Za-z0-9_./-]{1,100}", caminho):
+        return jsonify(erro="Caminho inválido"), 400
+
+    if ".." in caminho.split("/"):
+        return jsonify(erro="Caminho inválido"), 400
+
+    db = banco()
+    dono = db.execute(
+        "SELECT id FROM repos WHERE id=? AND usuario_id=?",
+        (rid, session["uid"])
+    ).fetchone()
+
+    if not dono:
+        return jsonify(erro="Repositório não encontrado"), 404
+
+    db.execute(
+        "INSERT INTO arquivos(repo_id,caminho,conteudo) VALUES (?,?,?)",
+        (rid, caminho, conteudo)
+    )
+    db.commit()
+    return jsonify(ok=True)
+
+if __name__ == "__main__":
+    inicializar()
+    app.run(host="127.0.0.1", port=5000, debug=False)
