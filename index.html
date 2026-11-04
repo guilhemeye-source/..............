@@ -39,9 +39,10 @@ pre{background:var(--code);border:1px solid var(--line);border-radius:10px;paddi
 <div class="w" id="app"></div>
 <script>
 (function(){
-var K='gaveta:v1',app=document.getElementById('app'),unlocked={},fresh=null,viewing={},err='';
-function load(){try{return JSON.parse(localStorage.getItem(K))||{sites:{}}}catch(e){return{sites:{}}}}
-function save(d){try{localStorage.setItem(K,JSON.stringify(d))}catch(e){alert('Não foi possível salvar neste navegador.')}}
+var K='gaveta:v1',app=document.getElementById('app'),unlocked={},fresh=null,viewing={},err='',pasted=null;
+var DB=null;
+function load(){if(!DB){try{DB=JSON.parse(localStorage.getItem(K))||{sites:{}}}catch(e){DB={sites:{}}}}return DB}
+function save(d){try{localStorage.setItem(K,JSON.stringify(d));return true}catch(e){alert('Não coube no armazenamento do navegador (limite de cerca de 5 MB no total). Use um arquivo menor ou apague outros.');return false}}
 function hex(a){return Array.prototype.map.call(a,function(x){return x.toString(16).padStart(2,'0')}).join('')}
 function rnd(n){var a=new Uint8Array(n);crypto.getRandomValues(a);return hex(a)}
 function sha(t){return crypto.subtle.digest('SHA-256',new TextEncoder().encode(t)).then(function(b){return hex(new Uint8Array(b))})}
@@ -69,13 +70,17 @@ function site(id){
   app.innerHTML='<p><a href="#">← Início</a></p><div class="bar"><h1>'+esc(s.name)+'</h1>'+(s.protected?'<span class="pill">protegido</span>':'<span class="pill">aberto</span>')+'</div>'+
   '<p class="m">Link: <a href="#/s/'+id+'">'+esc(location.href.split('#')[0])+'#/s/'+id+'</a></p>'+tok+
   '<h2>Arquivos</h2><div class="card">'+(s.files.length?s.files.map(function(f,i){
-    return '<div class="item"><strong>'+esc(f.name)+'</strong><span class="row" style="margin:0"><button class="g" data-a="view" data-i="'+i+'">'+(viewing[id+i]?'Fechar':'Ver')+'</button><button class="g" data-a="dl" data-i="'+i+'">Baixar</button><button class="d" data-a="del" data-i="'+i+'">Excluir</button></span>'+(viewing[id+i]?'<pre>'+esc(f.content)+'</pre>':'')+'</div>'}).join(''):'<p class="m">Nenhum arquivo ainda.</p>')+'</div>'+
-  '<h2>Adicionar arquivo</h2><div class="card"><label for="fn" style="margin-top:0">Nome do arquivo</label><input type="text" id="fn" placeholder="index.js"><label for="fc">Código</label><textarea id="fc" spellcheck="false"></textarea><div class="row"><button data-a="add">Salvar arquivo</button></div></div>'+
+    return '<div class="item"><strong>'+esc(f.name)+'</strong><span class="row" style="margin:0"><button class="g" data-a="view" data-i="'+i+'">'+(viewing[id+i]?'Fechar':'Ver')+'</button><button class="g" data-a="dl" data-i="'+i+'">Baixar</button><button class="d" data-a="del" data-i="'+i+'">Excluir</button></span>'+(viewing[id+i]?'<pre>'+esc(f.content.slice(0,20000))+'</pre>'+(f.content.length>20000?'<p class="m">Mostrando os primeiros 20.000 caracteres. Baixe o arquivo para ver tudo.</p>':''):'')+'</div>'}).join(''):'<p class="m">Nenhum arquivo ainda.</p>')+'</div>'+
+  '<h2>Adicionar arquivo</h2><div class="card"><label for="fn" style="margin-top:0">Nome do arquivo</label><input type="text" id="fn" placeholder="index.js"><label for="fc">Código</label><div id="cb"></div><textarea id="fc" spellcheck="false" placeholder="Cole ou digite o código. Colagens grandes viram um arquivo."></textarea><div class="row"><button data-a="add">Salvar arquivo</button></div></div>'+
   '<div class="row" style="margin-top:2rem">'+(s.protected?'<button class="g" data-a="regen">Gerar novo token</button>':'')+'<button class="d" data-a="rmsite">Excluir site</button></div>'+
   '<p class="note">O código é sempre exibido como texto e nunca é executado.</p>';
 }
 
-function render(){var id=route();id?site(id):home()}
+function chip(){var b=document.getElementById('cb'),t=document.getElementById('fc');if(!b)return;
+  if(pasted!==null){var ln=pasted.split('\n').length;
+    b.innerHTML='<div class="item" style="border:1.5px solid var(--line);border-radius:12px;padding:.7rem .9rem;margin-bottom:.5rem"><span>📁 <strong>Código colado</strong><br><span class="m">'+ln.toLocaleString('pt-BR')+' linhas · '+Math.max(1,Math.round(pasted.length/1024)).toLocaleString('pt-BR')+' KB</span></span><button class="d" data-a="rmpaste">Remover</button></div>';t.style.display='none'}
+  else{b.innerHTML='';t.style.display=''}}
+function render(){var id=route();id?site(id):home();chip()}
 
 app.addEventListener('click',function(e){
   var b=e.target.closest('button');if(!b)return;
@@ -92,12 +97,15 @@ app.addEventListener('click',function(e){
   if(a==='unlock'){sha(document.getElementById('t').value.trim()).then(function(h){
     if(s&&h===s.hash){unlocked[id]=true}else{err='Token incorreto.'}render()});return}
   if(!s)return;
+  if(a==='rmpaste'){pasted=null;chip();return}
   if(a==='copy'){var c=document.getElementById('tk').textContent;
     (navigator.clipboard?navigator.clipboard.writeText(c):Promise.reject()).then(function(){b.textContent='Copiado!'}).catch(function(){var r=document.createRange();r.selectNodeContents(document.getElementById('tk'));var sel=getSelection();sel.removeAllRanges();sel.addRange(r);b.textContent='Selecionado: copie manualmente'});return}
   if(a==='done'){fresh=null}
-  if(a==='add'){var fn=document.getElementById('fn').value.trim(),fc=document.getElementById('fc').value;
+  if(a==='add'){var fn=document.getElementById('fn').value.trim(),fc=pasted!==null?pasted:document.getElementById('fc').value;
+    if(!fn&&pasted!==null)fn='colado.txt';
     if(!fn){err='';alert('Dê um nome ao arquivo.');return}
-    s.files.push({name:fn,content:fc});save(d)}
+    if(fc.length>1500000){alert('Arquivo grande demais (máximo de cerca de 1,5 milhão de caracteres).');return}
+    s.files.push({name:fn,content:fc});if(!save(d)){s.files.pop();return}pasted=null}
   if(a==='view'){var k=id+b.dataset.i;viewing[k]=!viewing[k]}
   if(a==='dl'){var f=s.files[b.dataset.i],u=URL.createObjectURL(new Blob([f.content],{type:'text/plain'})),l=document.createElement('a');l.href=u;l.download=f.name;l.click();URL.revokeObjectURL(u);return}
   if(a==='del'){if(confirm('Excluir este arquivo?')){s.files.splice(b.dataset.i,1);viewing={};save(d)}}
@@ -105,7 +113,12 @@ app.addEventListener('click',function(e){
   if(a==='rmsite'){if(confirm('Excluir o site e todos os arquivos?')){delete d.sites[id];save(d);location.hash='';return}}
   render();
 });
-window.addEventListener('hashchange',function(){err='';render()});
+app.addEventListener('paste',function(e){
+  if(!e.target||e.target.id!=='fc')return;
+  var t=(e.clipboardData||window.clipboardData).getData('text');
+  if(t&&t.length>5000){e.preventDefault();pasted=t;chip()}
+});
+window.addEventListener('hashchange',function(){err='';pasted=null;render()});
 render();
 })();
 </script>
