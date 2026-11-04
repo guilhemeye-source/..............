@@ -71,7 +71,7 @@ function site(id){
   '<p class="m">Link: <a href="#/s/'+id+'">'+esc(location.href.split('#')[0])+'#/s/'+id+'</a></p>'+tok+
   '<h2>Arquivos</h2><div class="card">'+(s.files.length?s.files.map(function(f,i){
     return '<div class="item"><strong>'+esc(f.name)+'</strong><span class="row" style="margin:0"><button class="g" data-a="view" data-i="'+i+'">'+(viewing[id+i]?'Fechar':'Ver')+'</button><button class="g" data-a="dl" data-i="'+i+'">Baixar</button><button class="d" data-a="del" data-i="'+i+'">Excluir</button></span>'+(viewing[id+i]?'<pre>'+esc(f.content.slice(0,20000))+'</pre>'+(f.content.length>20000?'<p class="m">Mostrando os primeiros 20.000 caracteres. Baixe o arquivo para ver tudo.</p>':''):'')+'</div>'}).join(''):'<p class="m">Nenhum arquivo ainda.</p>')+'</div>'+
-  '<h2>Adicionar arquivo</h2><div class="card"><label for="fn" style="margin-top:0">Nome do arquivo</label><input type="text" id="fn" placeholder="index.js"><label for="fc">Código</label><div id="cb"></div><textarea id="fc" spellcheck="false" placeholder="Cole ou digite o código. Colagens grandes viram um arquivo."></textarea><div class="row"><button data-a="add">Salvar arquivo</button></div></div>'+
+  '<h2>Enviar arquivos</h2><div class="card"><label for="up" style="margin-top:0">Escolha um ou mais arquivos de código</label><input type="file" id="up" multiple><p class="m" id="upmsg"></p></div>'+
   '<div class="row" style="margin-top:2rem">'+(s.protected?'<button class="g" data-a="regen">Gerar novo token</button>':'')+'<button class="d" data-a="rmsite">Excluir site</button></div>'+
   '<p class="note">O código é sempre exibido como texto e nunca é executado.</p>';
 }
@@ -112,6 +112,23 @@ app.addEventListener('click',function(e){
   if(a==='regen'){if(confirm('O token antigo deixa de funcionar. Continuar?')){var t2='gvt_'+rnd(32);sha(t2).then(function(h){s.hash=h;save(d);fresh={id:id,t:t2};render()});return}}
   if(a==='rmsite'){if(confirm('Excluir o site e todos os arquivos?')){delete d.sites[id];save(d);location.hash='';return}}
   render();
+});
+app.addEventListener('change',function(e){
+  if(!e.target||e.target.id!=='up')return;
+  var id=route(),d=load(),s=d.sites[id],fl=Array.prototype.slice.call(e.target.files),bad=[],ok=0;
+  if(!s||!fl.length)return;
+  Promise.all(fl.map(function(f){
+    if(f.size>1500000){bad.push(f.name+' (maior que 1,5 MB)');return null}
+    return f.text().then(function(t){
+      if(t.indexOf('\u0000')>-1){bad.push(f.name+' (não parece texto)');return}
+      s.files.push({name:f.name,content:t});ok++;
+    }).catch(function(){bad.push(f.name+' (erro ao ler)')});
+  })).then(function(){
+    if(ok&&!save(d)){s.files.splice(s.files.length-ok,ok);ok=0}
+    render();
+    var m=document.getElementById('upmsg');
+    if(m)m.textContent=(ok?ok+' arquivo(s) adicionado(s). ':'')+(bad.length?'Não adicionados: '+bad.join(', ')+'.':'');
+  });
 });
 app.addEventListener('paste',function(e){
   if(!e.target||e.target.id!=='fc')return;
