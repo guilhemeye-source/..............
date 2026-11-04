@@ -1,185 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gaveta — guarde seu código</title>
+<style>
+:root{--bg:#eef1f7;--surface:#fff;--ink:#1b2340;--muted:#5a6384;--line:#d3d9e8;--accent:#5b3df5;--on:#fff;--warn:#fff3cf;--warn-ink:#6b4a00;--code:#f4f6fb;
+--f:'Trebuchet MS','Segoe UI',system-ui,sans-serif;--m:ui-monospace,Menlo,Consolas,monospace;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root{--bg:#121734;--surface:#1b2145;--ink:#e8ebf8;--muted:#9aa4cc;--line:#2f376a;--accent:#9d8cff;--on:#121734;--warn:#3a3112;--warn-ink:#ffe08a;--code:#141a3b;color-scheme:dark}}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.55 var(--f)}
+.w{max-width:760px;margin:0 auto;padding:1.25rem}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+h1{font-size:2.2rem;line-height:1.1;margin:.2rem 0 .5rem;letter-spacing:-.02em}
+h2{font-size:1.25rem;margin:2rem 0 .75rem}
+a{color:var(--accent)}p{margin:.4rem 0}.m{color:var(--muted)}
+.card{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:1.1rem}
+input[type=text],input[type=password],textarea{width:100%;font:inherit;padding:.65rem .8rem;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+textarea{font-family:var(--m);font-size:.9rem;min-height:140px;resize:vertical}
+label{display:block;font-weight:600;margin:.8rem 0 .3rem}
+label.c{display:flex;gap:.5rem;align-items:center;font-weight:400}
+button{font:600 .95rem var(--f);padding:.6rem 1.1rem;border-radius:999px;border:0;background:var(--accent);color:var(--on);cursor:pointer}
+button.g{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+button.d{background:transparent;color:#c0392b;border:1.5px solid var(--line)}
+.row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin-top:.8rem}
+.item{display:flex;justify-content:space-between;align-items:center;gap:.75rem;padding:.7rem 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.item:last-child{border:0}
+.tok{background:var(--warn);color:var(--warn-ink);border-radius:14px;padding:1rem;margin:1rem 0}
+.tok code{display:block;font:600 .95rem var(--m);word-break:break-all;margin:.5rem 0;user-select:all}
+pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.8rem;overflow-x:auto;font:.85rem/1.5 var(--m);width:100%;margin:.5rem 0 0}
+.err{color:#c0392b;font-weight:600}
+.bar{display:flex;justify-content:space-between;align-items:center}
+.pill{font-size:.8rem;padding:.15rem .6rem;border-radius:999px;border:1.5px solid var(--line);color:var(--muted)}
+.note{font-size:.85rem;color:var(--muted);margin-top:2rem}
+</style>
+</head>
+<body>
+<div class="w" id="app"></div>
+<script>
+(function(){
+var K='gaveta:v1',app=document.getElementById('app'),unlocked={},fresh=null,viewing={},err='';
+function load(){try{return JSON.parse(localStorage.getItem(K))||{sites:{}}}catch(e){return{sites:{}}}}
+function save(d){try{localStorage.setItem(K,JSON.stringify(d))}catch(e){alert('Não foi possível salvar neste navegador.')}}
+function hex(a){return Array.prototype.map.call(a,function(x){return x.toString(16).padStart(2,'0')}).join('')}
+function rnd(n){var a=new Uint8Array(n);crypto.getRandomValues(a);return hex(a)}
+function sha(t){return crypto.subtle.digest('SHA-256',new TextEncoder().encode(t)).then(function(b){return hex(new Uint8Array(b))})}
+function slug(s){return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,28)||'site'}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function route(){var m=location.hash.match(/^#\/s\/([a-z0-9-]+)$/);return m?m[1]:null}
 
-import os, re, sqlite3, secrets, hashlib, hmac, html
-from pathlib import Path
-from functools import wraps
-from flask import Flask, request, jsonify, session, g
+function home(){
+  var d=load(),ids=Object.keys(d.sites);
+  app.innerHTML='<h1>Gaveta</h1><p class="m">Crie um site, receba um link e guarde código de qualquer tipo. Se quiser, proteja com um token que aparece uma única vez.</p>'+
+  '<div class="card" style="margin-top:1.25rem"><label for="n" style="margin-top:0">Nome do site</label><input type="text" id="n" maxlength="40" placeholder="meu-projeto">'+
+  '<label class="c"><input type="checkbox" id="p" checked> Proteger com token</label>'+
+  '<div class="row"><button data-a="create">Criar site</button></div><p class="err">'+esc(err)+'</p></div>'+
+  '<h2>Seus sites neste navegador</h2>'+(ids.length?'<div class="card">'+ids.map(function(id){var s=d.sites[id];
+    return '<div class="item"><span><a href="#/s/'+id+'">'+esc(s.name)+'</a> '+(s.protected?'<span class="pill">protegido</span>':'<span class="pill">aberto</span>')+'</span><span class="m">'+s.files.length+' arquivo(s)</span></div>'}).join('')+'</div>':'<p class="m">Nenhum site ainda.</p>')+
+  '<p class="note">Versão estática: os dados ficam salvos só neste navegador (localStorage). A proteção por token aqui é uma demonstração; para proteção de verdade e links que funcionem para outras pessoas, é preciso um servidor.</p>';
+}
 
-BASE = Path(__file__).parent
-DB = BASE / "codehub.db"
-KEY = BASE / ".secret_key"
+function site(id){
+  var d=load(),s=d.sites[id];
+  if(!s){app.innerHTML='<h1>Site não encontrado</h1><p class="m">Este link não existe neste navegador.</p><p><a href="#">Voltar ao início</a></p>';return}
+  if(s.protected&&!unlocked[id]){
+    app.innerHTML='<p><a href="#">← Início</a></p><h1>'+esc(s.name)+'</h1><div class="card"><p>Este site é protegido. Cole o token para abrir.</p><label for="t">Token</label><input type="password" id="t" autocomplete="off"><div class="row"><button data-a="unlock">Abrir</button></div><p class="err">'+esc(err)+'</p></div>';return}
+  var tok=fresh&&fresh.id===id?'<div class="tok"><strong>Seu token</strong><p>Copie agora. Ele não é guardado e não aparece de novo.</p><code id="tk">'+esc(fresh.t)+'</code><div class="row"><button data-a="copy">Copiar token</button><button class="g" data-a="done">Já copiei</button></div></div>':'';
+  app.innerHTML='<p><a href="#">← Início</a></p><div class="bar"><h1>'+esc(s.name)+'</h1>'+(s.protected?'<span class="pill">protegido</span>':'<span class="pill">aberto</span>')+'</div>'+
+  '<p class="m">Link: <a href="#/s/'+id+'">'+esc(location.href.split('#')[0])+'#/s/'+id+'</a></p>'+tok+
+  '<h2>Arquivos</h2><div class="card">'+(s.files.length?s.files.map(function(f,i){
+    return '<div class="item"><strong>'+esc(f.name)+'</strong><span class="row" style="margin:0"><button class="g" data-a="view" data-i="'+i+'">'+(viewing[id+i]?'Fechar':'Ver')+'</button><button class="g" data-a="dl" data-i="'+i+'">Baixar</button><button class="d" data-a="del" data-i="'+i+'">Excluir</button></span>'+(viewing[id+i]?'<pre>'+esc(f.content)+'</pre>':'')+'</div>'}).join(''):'<p class="m">Nenhum arquivo ainda.</p>')+'</div>'+
+  '<h2>Adicionar arquivo</h2><div class="card"><label for="fn" style="margin-top:0">Nome do arquivo</label><input type="text" id="fn" placeholder="index.js"><label for="fc">Código</label><textarea id="fc" spellcheck="false"></textarea><div class="row"><button data-a="add">Salvar arquivo</button></div></div>'+
+  '<div class="row" style="margin-top:2rem">'+(s.protected?'<button class="g" data-a="regen">Gerar novo token</button>':'')+'<button class="d" data-a="rmsite">Excluir site</button></div>'+
+  '<p class="note">O código é sempre exibido como texto e nunca é executado.</p>';
+}
 
-if not KEY.exists():
-    KEY.write_text(secrets.token_hex(32))
+function render(){var id=route();id?site(id):home()}
 
-app = Flask(__name__)
-app.secret_key = KEY.read_text()
-app.config.update(
-    SESSION_COOKIE_HTTPONLY=True,
-    SESSION_COOKIE_SAMESITE="Lax",
-    MAX_CONTENT_LENGTH=512 * 1024
-)
-
-def banco():
-    if "db" not in g:
-        g.db = sqlite3.connect(DB)
-        g.db.execute("PRAGMA foreign_keys=ON")
-    return g.db
-
-@app.teardown_appcontext
-def fechar(exc):
-    db = g.pop("db", None)
-    if db:
-        db.close()
-
-def hash_senha(s):
-    salt = os.urandom(16)
-    h = hashlib.scrypt(s.encode(), salt=salt,
-                       n=2**14, r=8, p=1)
-    return salt.hex() + ":" + h.hex()
-
-def verificar(s, armazenada):
-    salt, antigo = armazenada.split(":")
-    novo = hashlib.scrypt(
-        s.encode(), salt=bytes.fromhex(salt),
-        n=2**14, r=8, p=1
-    ).hex()
-    return hmac.compare_digest(antigo, novo)
-
-def inicializar():
-    with sqlite3.connect(DB) as db:
-        db.executescript("""
-        CREATE TABLE IF NOT EXISTS usuarios(
-            id INTEGER PRIMARY KEY,
-            nome TEXT UNIQUE NOT NULL,
-            senha TEXT NOT NULL
-        );
-        CREATE TABLE IF NOT EXISTS repos(
-            id INTEGER PRIMARY KEY,
-            usuario_id INTEGER NOT NULL REFERENCES usuarios(id),
-            nome TEXT NOT NULL,
-            descricao TEXT DEFAULT '',
-            privado INTEGER DEFAULT 1
-        );
-        CREATE TABLE IF NOT EXISTS arquivos(
-            id INTEGER PRIMARY KEY,
-            repo_id INTEGER NOT NULL REFERENCES repos(id),
-            caminho TEXT NOT NULL,
-            conteudo TEXT NOT NULL
-        );
-        """)
-
-def login_obrigatorio(f):
-    @wraps(f)
-    def wrapper(*a, **kw):
-        if "uid" not in session:
-            return jsonify(erro="Faça login"), 401
-        return f(*a, **kw)
-    return wrapper
-
-@app.post("/cadastro")
-def cadastro():
-    d = request.get_json(silent=True) or {}
-    nome, senha = d.get("usuario", ""), d.get("senha", "")
-
-    if not re.fullmatch(r"[A-Za-z0-9_]{3,20}", nome):
-        return jsonify(erro="Usuário inválido"), 400
-
-    if len(senha) < 12:
-        return jsonify(erro="Senha precisa de 12 caracteres"), 400
-
-    try:
-        banco().execute(
-            "INSERT INTO usuarios(nome,senha) VALUES (?,?)",
-            (nome, hash_senha(senha))
-        )
-        banco().commit()
-        return jsonify(ok=True)
-    except sqlite3.IntegrityError:
-        return jsonify(erro="Usuário já existe"), 409
-
-@app.post("/login")
-def entrar():
-    d = request.get_json(silent=True) or {}
-    u, s = d.get("usuario", ""), d.get("senha", "")
-
-    user = banco().execute(
-        "SELECT id,senha FROM usuarios WHERE nome=?",
-        (u,)
-    ).fetchone()
-
-    if not user or not verificar(s, user[1]):
-        return jsonify(erro="Login inválido"), 401
-
-    session.clear()
-    session["uid"] = user[0]
-    session.permanent = True
-    return jsonify(ok=True)
-
-@app.post("/sair")
-def sair():
-    session.clear()
-    return jsonify(ok=True)
-
-@app.post("/repos")
-@login_obrigatorio
-def criar_repo():
-    d = request.get_json(silent=True) or {}
-    nome = d.get("nome", "")
-
-    if not re.fullmatch(r"[A-Za-z0-9_-]{1,40}", nome):
-        return jsonify(erro="Nome inválido"), 400
-
-    banco().execute(
-        "INSERT INTO repos(usuario_id,nome,descricao) VALUES (?,?,?)",
-        (session["uid"], nome, d.get("descricao", ""))
-    )
-    banco().commit()
-    return jsonify(ok=True)
-
-@app.get("/repos")
-@login_obrigatorio
-def listar():
-    repos = banco().execute(
-        "SELECT id,nome,descricao,privado FROM repos WHERE usuario_id=?",
-        (session["uid"],)
-    ).fetchall()
-    return jsonify(repos=[
-        dict(id=r[0], nome=r[1], descricao=html.escape(r[2]),
-             privado=bool(r[3])) for r in repos
-    ])
-
-@app.post("/repos/<int:rid>/arquivos")
-@login_obrigatorio
-def arquivo(rid):
-    d = request.get_json(silent=True) or {}
-    caminho = d.get("caminho", "")
-    conteudo = d.get("conteudo", "")
-
-    if len(conteudo.encode()) > 200000:
-        return jsonify(erro="Arquivo muito grande"), 413
-
-    if not re.fullmatch(r"[A-Za-z0-9_./-]{1,100}", caminho):
-        return jsonify(erro="Caminho inválido"), 400
-
-    if ".." in caminho.split("/"):
-        return jsonify(erro="Caminho inválido"), 400
-
-    db = banco()
-    dono = db.execute(
-        "SELECT id FROM repos WHERE id=? AND usuario_id=?",
-        (rid, session["uid"])
-    ).fetchone()
-
-    if not dono:
-        return jsonify(erro="Repositório não encontrado"), 404
-
-    db.execute(
-        "INSERT INTO arquivos(repo_id,caminho,conteudo) VALUES (?,?,?)",
-        (rid, caminho, conteudo)
-    )
-    db.commit()
-    return jsonify(ok=True)
-
-if __name__ == "__main__":
-    inicializar()
-    app.run(host="127.0.0.1", port=5000, debug=False)
+app.addEventListener('click',function(e){
+  var b=e.target.closest('button');if(!b)return;
+  var a=b.dataset.a,id=route(),d=load(),s=id?d.sites[id]:null;err='';
+  if(a==='create'){
+    var n=document.getElementById('n').value.trim();
+    if(!n){err='Dê um nome ao site.';return render()}
+    var pr=document.getElementById('p').checked,nid=slug(n)+'-'+rnd(3);
+    var ns={name:n,protected:pr,hash:null,files:[]};
+    if(pr){var t='gvt_'+rnd(32);sha(t).then(function(h){ns.hash=h;d.sites[nid]=ns;save(d);fresh={id:nid,t:t};unlocked[nid]=true;location.hash='#/s/'+nid;render()})}
+    else{d.sites[nid]=ns;save(d);location.hash='#/s/'+nid;render()}
+    return;
+  }
+  if(a==='unlock'){sha(document.getElementById('t').value.trim()).then(function(h){
+    if(s&&h===s.hash){unlocked[id]=true}else{err='Token incorreto.'}render()});return}
+  if(!s)return;
+  if(a==='copy'){var c=document.getElementById('tk').textContent;
+    (navigator.clipboard?navigator.clipboard.writeText(c):Promise.reject()).then(function(){b.textContent='Copiado!'}).catch(function(){var r=document.createRange();r.selectNodeContents(document.getElementById('tk'));var sel=getSelection();sel.removeAllRanges();sel.addRange(r);b.textContent='Selecionado: copie manualmente'});return}
+  if(a==='done'){fresh=null}
+  if(a==='add'){var fn=document.getElementById('fn').value.trim(),fc=document.getElementById('fc').value;
+    if(!fn){err='';alert('Dê um nome ao arquivo.');return}
+    s.files.push({name:fn,content:fc});save(d)}
+  if(a==='view'){var k=id+b.dataset.i;viewing[k]=!viewing[k]}
+  if(a==='dl'){var f=s.files[b.dataset.i],u=URL.createObjectURL(new Blob([f.content],{type:'text/plain'})),l=document.createElement('a');l.href=u;l.download=f.name;l.click();URL.revokeObjectURL(u);return}
+  if(a==='del'){if(confirm('Excluir este arquivo?')){s.files.splice(b.dataset.i,1);viewing={};save(d)}}
+  if(a==='regen'){if(confirm('O token antigo deixa de funcionar. Continuar?')){var t2='gvt_'+rnd(32);sha(t2).then(function(h){s.hash=h;save(d);fresh={id:id,t:t2};render()});return}}
+  if(a==='rmsite'){if(confirm('Excluir o site e todos os arquivos?')){delete d.sites[id];save(d);location.hash='';return}}
+  render();
+});
+window.addEventListener('hashchange',function(){err='';render()});
+render();
+})();
+</script>
+</body>
+</html>
