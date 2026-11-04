@@ -1,252 +1,162 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pyllo Code</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pyllo Code — guarde seu código</title>
 <style>
+:root{
+  --bg:#080808;--surface:#111;--ink:#f5f5f5;--muted:#aaa;
+  --line:#383838;--accent:#fff;--on:#080808;
+  --warn:#242424;--warn-ink:#fff;--code:#090909;
+  --f:'Trebuchet MS','Segoe UI',system-ui,sans-serif;
+  --m:ui-monospace,Menlo,Consolas,monospace;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px)
+}
 *{box-sizing:border-box}
-body{margin:0;background:#080808;color:#f5f5f5;font-family:Arial,sans-serif}
-header{padding:20px;border-bottom:1px solid #292929;display:flex;justify-content:space-between;align-items:center}
-.logo{font-size:21px;font-weight:bold;letter-spacing:1px}
-main{max-width:900px;margin:30px auto;padding:0 16px}
-h2{font-size:18px;margin:0 0 15px}
-.panel{background:#111;border:1px solid #292929;padding:18px;border-radius:10px;margin-bottom:20px}
-input,textarea{width:100%;background:#080808;color:white;border:1px solid #333;border-radius:6px;padding:12px;margin:7px 0 14px;font:14px Arial;outline:none}
-input:focus,textarea:focus{border-color:#aaa}
-textarea{min-height:250px;resize:vertical;font-family:monospace;line-height:1.5}
-button{background:#f5f5f5;color:#080808;border:0;padding:11px 16px;border-radius:6px;font-weight:bold;cursor:pointer}
-button.secondary{background:#222;color:#fff;border:1px solid #444}
-button.danger{background:#292929;color:#fff;border:1px solid #555}
-button:disabled{opacity:.5;cursor:not-allowed}
-.actions{display:flex;gap:8px;flex-wrap:wrap}
-.item{border:1px solid #292929;padding:14px;border-radius:7px;margin-top:10px;background:#0b0b0b}
-.item-name{font-weight:bold;overflow-wrap:anywhere}
-.item small{display:block;color:#999;margin:6px 0 12px}
-#status{font-size:13px;color:#bbb;margin-top:12px;min-height:18px}
-#preview{display:none;white-space:pre-wrap;overflow-wrap:anywhere;background:#050505;border:1px solid #333;padding:14px;border-radius:6px;max-height:400px;overflow:auto;font:13px monospace}
-.empty{color:#888;font-size:14px;padding:12px 0}
-footer{text-align:center;color:#666;font-size:12px;padding:25px}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.55 var(--f)}
+.w{max-width:760px;margin:0 auto;padding:1.25rem}
+:focus-visible{outline:3px solid #aaa;outline-offset:2px}
+h1{font-size:2.2rem;line-height:1.1;margin:.2rem 0 .5rem;letter-spacing:-.02em}
+h2{font-size:1.25rem;margin:2rem 0 .75rem}
+a{color:#fff}p{margin:.4rem 0}.m{color:var(--muted)}
+.card{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:1.1rem}
+input[type=text],input[type=password],textarea{width:100%;font:inherit;padding:.65rem .8rem;border:1.5px solid var(--line);border-radius:10px;background:#090909;color:var(--ink)}
+textarea{font-family:var(--m);font-size:.9rem;min-height:140px;resize:vertical}
+label{display:block;font-weight:600;margin:.8rem 0 .3rem}
+label.c{display:flex;gap:.5rem;align-items:center;font-weight:400}
+button{font:600 .95rem var(--f);padding:.6rem 1.1rem;border-radius:999px;border:0;background:#f5f5f5;color:#080808;cursor:pointer}
+button.g{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+button.d{background:transparent;color:#eee;border:1.5px solid #555}
+.row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin-top:.8rem}
+.item{display:flex;justify-content:space-between;align-items:center;gap:.75rem;padding:.7rem 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.item:last-child{border:0}
+.tok{background:var(--warn);color:var(--warn-ink);border:1px solid #444;border-radius:14px;padding:1rem;margin:1rem 0}
+.tok code{display:block;font:600 .95rem var(--m);word-break:break-all;margin:.5rem 0;user-select:all}
+pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.8rem;overflow-x:auto;font:.85rem/1.5 var(--m);width:100%;margin:.5rem 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.err{color:#ff8585;font-weight:600}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.pill{font-size:.8rem;padding:.15rem .6rem;border-radius:999px;border:1.5px solid var(--line);color:var(--muted)}
+.note{font-size:.85rem;color:var(--muted);margin-top:2rem}
+.raw{font: .8rem var(--m);overflow-wrap:anywhere;color:#ddd}
 </style>
 </head>
 <body>
-
-<header>
-  <div class="logo">PYLLO CODE</div>
-  <div style="font-size:12px;color:#888">PUBLIC CODE</div>
-</header>
-
-<main>
-  <section class="panel">
-    <h2>Publicar código</h2>
-
-    <label for="filename">Nome do código</label>
-    <input id="filename" placeholder="Exemplo: meu-script.lua" maxlength="80">
-
-    <label for="code">Código</label>
-    <textarea id="code" spellcheck="false" placeholder="Escreva ou cole seu código aqui..."></textarea>
-
-    <div class="actions">
-      <button id="publish">PUBLICAR</button>
-      <button class="secondary" id="clear">LIMPAR</button>
-    </div>
-
-    <div id="status"></div>
-  </section>
-
-  <section class="panel">
-    <h2>Códigos publicados</h2>
-    <div id="files"><div class="empty">Carregando códigos...</div></div>
-  </section>
-
-  <section class="panel" id="viewer" style="display:none">
-    <h2 id="viewTitle">Visualizar código</h2>
-    <pre id="preview"></pre>
-    <div class="actions" style="margin-top:12px">
-      <button class="secondary" id="copyRaw">COPIAR RAW</button>
-      <button class="secondary" id="download">BAIXAR</button>
-      <button class="danger" id="delete">EXCLUIR</button>
-      <button class="secondary" id="close">FECHAR</button>
-    </div>
-    <div id="rawText" style="font-size:12px;color:#aaa;overflow-wrap:anywhere;margin-top:12px"></div>
-  </section>
-</main>
-
-<footer>PYLLO CODE — SIMPLE CODE STORAGE</footer>
-
+<div class="w" id="app"></div>
 <script>
-const API_URL = "https://aphiw-code.guilhemeye.workers.dev";
-
-const $ = id => document.getElementById(id);
-let selectedFile = null;
-let selectedRaw = "";
-let selectedCode = "";
-
-function status(message){
-  $("status").textContent = message;
+(function(){
+/*
+  Configure esta URL com o endereço do seu Cloudflare Worker.
+  O Worker guarda o token do GitHub em Secret, nunca neste HTML.
+*/
+var API='https://SEU-WORKER.workers.dev';
+var K='gaveta:v1',app=document.getElementById('app'),unlocked={},fresh=null,viewing={},err='',pasted=null;
+var DB=null;
+function load(){if(!DB){try{DB=JSON.parse(localStorage.getItem(K))||{sites:{}}}catch(e){DB={sites:{}}}}return DB}
+function save(d){try{localStorage.setItem(K,JSON.stringify(d));return true}catch(e){alert('Não coube no armazenamento do navegador (limite de cerca de 5 MB no total). Use um arquivo menor ou apague outros.');return false}}
+function hex(a){return Array.prototype.map.call(a,function(x){return x.toString(16).padStart(2,'0')}).join('')}
+function rnd(n){var a=new Uint8Array(n);crypto.getRandomValues(a);return hex(a)}
+function sha(t){return crypto.subtle.digest('SHA-256',new TextEncoder().encode(t)).then(function(b){return hex(new Uint8Array(b))})}
+function slug(s){return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,28)||'site'}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function route(){var m=location.hash.match(/^#\/s\/([a-z0-9-]+)$/);return m?m[1]:null}
+function rawLink(name){return 'https://raw.githubusercontent.com/SEU-USUARIO/SEU-REPOSITORIO/main/scripts/'+encodeURIComponent(name)}
+function home(){
+  var d=load(),ids=Object.keys(d.sites);
+  app.innerHTML='<h1>Pyllo Code</h1><p class="m">Crie um espaço para guardar seus códigos, visualize e baixe seus arquivos. Você também pode publicar no GitHub para gerar um link RAW público.</p>'+
+  '<div class="card" style="margin-top:1.25rem"><label for="n" style="margin-top:0">Nome do site</label><input type="text" id="n" maxlength="40" placeholder="meu-projeto">'+
+  '<label class="c"><input type="checkbox" id="p" checked> Proteger com token</label>'+
+  '<div class="row"><button data-a="create">Criar site</button></div><p class="err">'+esc(err)+'</p></div>'+
+  '<h2>Seus sites neste navegador</h2>'+(ids.length?'<div class="card">'+ids.map(function(id){var s=d.sites[id];
+    return '<div class="item"><span><a href="#/s/'+id+'">'+esc(s.name)+'</a> '+(s.protected?'<span class="pill">protegido</span>':'<span class="pill">aberto</span>')+'</span><span class="m">'+s.files.length+' arquivo(s)</span></div>'}).join('')+'</div>':'<p class="m">Nenhum site ainda.</p>')+
+  '<p class="note">Os sites e tokens desta área ficam salvos neste navegador. Os arquivos publicados no GitHub têm links RAW públicos e podem ser acessados em outros aparelhos.</p>';
 }
-
-function safeName(name){
-  return name.trim().replace(/[^a-zA-Z0-9._-]/g,"-");
+function site(id){
+  var d=load(),s=d.sites[id];
+  if(!s){app.innerHTML='<h1>Site não encontrado</h1><p class="m">Este site não existe neste navegador.</p><p><a href="#">Voltar ao início</a></p>';return}
+  if(s.protected&&!unlocked[id]){
+    app.innerHTML='<p><a href="#">← Início</a></p><h1>'+esc(s.name)+'</h1><div class="card"><p>Este site é protegido. Cole o token para abrir.</p><label for="t">Token</label><input type="password" id="t" autocomplete="off"><div class="row"><button data-a="unlock">Abrir</button></div><p class="err">'+esc(err)+'</p></div>';return}
+  var tok=fresh&&fresh.id===id?'<div class="tok"><strong>Seu token</strong><p>Copie agora. Ele não é guardado e não aparece de novo.</p><code id="tk">'+esc(fresh.t)+'</code><div class="row"><button data-a="copy">Copiar token</button><button class="g" data-a="done">Já copiei</button></div></div>':'';
+  app.innerHTML='<p><a href="#">← Início</a></p><div class="bar"><h1>'+esc(s.name)+'</h1>'+(s.protected?'<span class="pill">protegido</span>':'<span class="pill">aberto</span>')+'</div>'+
+  '<p class="m">Link local: <a href="#/s/'+id+'">'+esc(location.href.split('#')[0])+'#/s/'+id+'</a></p>'+tok+
+  '<h2>Arquivos</h2><div class="card">'+(s.files.length?s.files.map(function(f,i){
+    return '<div class="item"><strong>'+esc(f.name)+'</strong><span class="row" style="margin:0"><button class="g" data-a="view" data-i="'+i+'">'+(viewing[id+i]?'Fechar':'Ver')+'</button><button class="g" data-a="dl" data-i="'+i+'">Baixar</button>'+(f.rawUrl?'<button class="g" data-a="raw" data-i="'+i+'">Copiar RAW</button>':'<button class="g" data-a="publish" data-i="'+i+'">Publicar GitHub</button>')+'<button class="d" data-a="del" data-i="'+i+'">Excluir</button></span>'+(f.rawUrl?'<p class="raw">RAW: <a href="'+esc(f.rawUrl)+'" target="_blank" rel="noopener">'+esc(f.rawUrl)+'</a></p>':'')+(viewing[id+i]?'<pre>'+esc(f.content.slice(0,20000))+'</pre>'+(f.content.length>20000?'<p class="m">Mostrando os primeiros 20.000 caracteres. Baixe o arquivo para ver tudo.</p>':''):'')+'</div>'}).join(''):'<p class="m">Nenhum arquivo ainda.</p>')+'</div>'+
+  '<h2>Adicionar arquivo</h2><div class="card"><label for="fn" style="margin-top:0">Nome do arquivo</label><input type="text" id="fn" placeholder="meu-script.lua"><label for="fc">Código</label><div id="cb"></div><textarea id="fc" spellcheck="false" placeholder="Cole ou digite o código. Colagens grandes viram um arquivo."></textarea><div class="row"><button data-a="add">Salvar arquivo</button></div></div>'+
+  '<div class="row" style="margin-top:2rem">'+(s.protected?'<button class="g" data-a="regen">Gerar novo token</button>':'')+'<button class="d" data-a="rmsite">Excluir site</button></div>'+
+  '<p class="note">O código é exibido como texto e nunca é executado pelo site. A publicação cria um arquivo público no repositório GitHub configurado.</p>';
 }
-
-async function loadFiles(){
-  $("files").innerHTML = '<div class="empty">Carregando...</div>';
-
-  try{
-    const response = await fetch(API_URL + "/api/files");
-    if(!response.ok) throw new Error("Não foi possível carregar a lista.");
-
-    const files = await response.json();
-    $("files").innerHTML = "";
-
-    if(!files.length){
-      $("files").innerHTML = '<div class="empty">Nenhum código publicado ainda.</div>';
-      return;
-    }
-
-    files.forEach(file => {
-      const item = document.createElement("div");
-      item.className = "item";
-
-      const name = document.createElement("div");
-      name.className = "item-name";
-      name.textContent = file.name;
-
-      const info = document.createElement("small");
-      info.textContent = "Arquivo publicado no GitHub";
-
-      const open = document.createElement("button");
-      open.textContent = "VISUALIZAR";
-      open.className = "secondary";
-      open.onclick = () => viewFile(file.name, file.rawUrl);
-
-      item.append(name, info, open);
-      $("files").appendChild(item);
-    });
-  }catch(error){
-    $("files").innerHTML =
-      '<div class="empty">Erro ao carregar. Confira se o Worker foi configurado.</div>';
-  }
+function chip(){var b=document.getElementById('cb'),t=document.getElementById('fc');if(!b)return;
+  if(pasted!==null){var ln=pasted.split('\n').length;
+    b.innerHTML='<div class="item" style="border:1.5px solid var(--line);border-radius:12px;padding:.7rem .9rem;margin-bottom:.5rem"><span><strong>Conteúdo colado</strong><br><span class="m">'+ln.toLocaleString('pt-BR')+' linhas · '+Math.max(1,Math.round(pasted.length/1024)).toLocaleString('pt-BR')+' KB</span></span><button class="d" data-a="rmpaste">Remover</button></div>';t.style.display='none'}
+  else{b.innerHTML='';t.style.display=''}}
+async function publishFile(file){
+  if(!API||API.indexOf('SEU-WORKER')!==-1)throw new Error('Configure a URL do Cloudflare Worker no HTML.');
+  var response=await fetch(API+'/api/publish',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({filename:file.name,code:file.content})});
+  var result=await response.json();
+  if(!response.ok)throw new Error(result.error||'Não foi possível publicar no GitHub.');
+  file.rawUrl=result.rawUrl;
+  return result.rawUrl;
 }
-
-async function viewFile(name, rawUrl){
-  try{
-    const response = await fetch(rawUrl);
-    if(!response.ok) throw new Error("Falha ao abrir o código.");
-
-    selectedCode = await response.text();
-    selectedFile = name;
-    selectedRaw = rawUrl;
-
-    $("viewTitle").textContent = name;
-    $("preview").textContent = selectedCode;
-    $("preview").style.display = "block";
-    $("viewer").style.display = "block";
-    $("rawText").textContent = rawUrl;
-
-    $("viewer").scrollIntoView({behavior:"smooth"});
-  }catch(error){
-    alert("Não foi possível abrir esse código.");
-  }
-}
-
-$("publish").onclick = async () => {
-  const filename = safeName($("filename").value);
-  const code = $("code").value;
-
-  if(!filename || !code.trim()){
-    status("Preencha o nome e o código.");
+function render(){var id=route();id?site(id):home();chip()}
+app.addEventListener('click',function(e){
+  var b=e.target.closest('button');if(!b)return;
+  var a=b.dataset.a,id=route(),d=load(),s=id?d.sites[id]:null;err='';
+  if(a==='create'){
+    var n=document.getElementById('n').value.trim();
+    if(!n){err='Dê um nome ao site.';return render()}
+    var pr=document.getElementById('p').checked,nid=slug(n)+'-'+rnd(3);
+    var ns={name:n,protected:pr,hash:null,files:[]};
+    if(pr){var t='gvt_'+rnd(32);sha(t).then(function(h){ns.hash=h;d.sites[nid]=ns;save(d);fresh={id:nid,t:t};unlocked[nid]=true;location.hash='#/s/'+nid;render()})}
+    else{d.sites[nid]=ns;save(d);location.hash='#/s/'+nid;render()}
     return;
   }
-
-  if(!/\.[a-zA-Z0-9]+$/.test(filename)){
-    status("Coloque a extensão do arquivo, por exemplo .lua");
+  if(a==='unlock'){sha(document.getElementById('t').value.trim()).then(function(h){
+    if(s&&h===s.hash){unlocked[id]=true}else{err='Token incorreto.'}render()});return}
+  if(!s)return;
+  if(a==='rmpaste'){pasted=null;chip();return}
+  if(a==='copy'){var c=document.getElementById('tk').textContent;
+    (navigator.clipboard?navigator.clipboard.writeText(c):Promise.reject()).then(function(){b.textContent='Copiado!'}).catch(function(){var r=document.createRange();r.selectNodeContents(document.getElementById('tk'));var sel=getSelection();sel.removeAllRanges();sel.addRange(r);b.textContent='Selecionado: copie manualmente'});return}
+  if(a==='done'){fresh=null}
+  if(a==='add'){
+    var fn=document.getElementById('fn').value.trim(),fc=pasted!==null?pasted:document.getElementById('fc').value;
+    if(!fn&&pasted!==null)fn='colado.txt';
+    if(!fn){alert('Dê um nome ao arquivo.');return}
+    if(fc.length>1500000){alert('Arquivo grande demais (máximo de cerca de 1,5 milhão de caracteres).');return}
+    var newFile={name:fn,content:fc};
+    s.files.push(newFile);if(!save(d)){s.files.pop();return}
+    pasted=null;
+    publishFile(newFile).then(function(url){save(d);alert('Publicado no GitHub! Link RAW:\\n'+url);render()}).catch(function(error){alert('Arquivo salvo neste navegador, mas não publicado no GitHub. '+error.message);render()});
+  }
+  if(a==='publish'){
+    var pf=s.files[Number(b.dataset.i)];
+    b.disabled=true;
+    publishFile(pf).then(function(url){save(d);alert('Link RAW publicado:\\n'+url);render()}).catch(function(error){alert(error.message);b.disabled=false});
     return;
   }
-
-  $("publish").disabled = true;
-  status("Publicando no GitHub...");
-
-  try{
-    const response = await fetch(API_URL + "/api/publish",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({filename,code})
-    });
-
-    const result = await response.json();
-
-    if(!response.ok) throw new Error(result.error || "Erro ao publicar.");
-
-    status("Publicado com sucesso! RAW: " + result.rawUrl);
-    $("filename").value = "";
-    $("code").value = "";
-    await loadFiles();
-    await viewFile(result.filename, result.rawUrl);
-  }catch(error){
-    status(error.message || "Não foi possível publicar.");
-  }finally{
-    $("publish").disabled = false;
+  if(a==='raw'){
+    var rf=s.files[Number(b.dataset.i)];
+    if(navigator.clipboard&&rf.rawUrl)navigator.clipboard.writeText(rf.rawUrl).then(function(){alert('Link RAW copiado!')}).catch(function(){prompt('Copie o link RAW:',rf.rawUrl)});
+    else prompt('Copie o link RAW:',rf.rawUrl);
+    return;
   }
-};
-
-$("clear").onclick = () => {
-  $("filename").value = "";
-  $("code").value = "";
-  status("");
-};
-
-$("copyRaw").onclick = async () => {
-  if(!selectedRaw) return;
-  await navigator.clipboard.writeText(selectedRaw);
-  status("Link RAW copiado!");
-};
-
-$("download").onclick = () => {
-  if(!selectedFile) return;
-  const blob = new Blob([selectedCode],{type:"text/plain"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = selectedFile;
-  a.click();
-  URL.revokeObjectURL(url);
-};
-
-$("delete").onclick = async () => {
-  if(!selectedFile) return;
-  const key = prompt("Digite a chave de administrador para excluir:");
-  if(!key) return;
-
-  if(!confirm("Deseja realmente excluir " + selectedFile + "?")) return;
-
-  try{
-    const response = await fetch(API_URL + "/api/delete",{
-      method:"DELETE",
-      headers:{
-        "Content-Type":"application/json",
-        "x-admin-key":key
-      },
-      body:JSON.stringify({filename:selectedFile})
-    });
-
-    const result = await response.json();
-    if(!response.ok) throw new Error(result.error || "Não foi possível excluir.");
-
-    $("viewer").style.display = "none";
-    status("Código excluído.");
-    await loadFiles();
-  }catch(error){
-    alert(error.message);
-  }
-};
-
-$("close").onclick = () => {
-  $("viewer").style.display = "none";
-};
-
-loadFiles();
+  if(a==='view'){var k=id+b.dataset.i;viewing[k]=!viewing[k]}
+  if(a==='dl'){var f=s.files[b.dataset.i],u=URL.createObjectURL(new Blob([f.content],{type:'text/plain'})),l=document.createElement('a');l.href=u;l.download=f.name;l.click();URL.revokeObjectURL(u);return}
+  if(a==='del'){if(confirm('Excluir este arquivo deste navegador? Isso não apaga automaticamente a cópia publicada no GitHub.')){s.files.splice(b.dataset.i,1);viewing={};save(d)}}
+  if(a==='regen'){if(confirm('O token antigo deixa de funcionar. Continuar?')){var t2='gvt_'+rnd(32);sha(t2).then(function(h){s.hash=h;save(d);fresh={id:id,t:t2};render()});return}}
+  if(a==='rmsite'){if(confirm('Excluir o site e todos os arquivos locais? Isso não apaga os arquivos do GitHub.')){delete d.sites[id];save(d);location.hash='';return}}
+  render();
+});
+app.addEventListener('paste',function(e){
+  if(!e.target||e.target.id!=='fc')return;
+  var t=(e.clipboardData||window.clipboardData).getData('text');
+  if(t&&t.length>5000){e.preventDefault();pasted=t;chip()}
+});
+window.addEventListener('hashchange',function(){err='';pasted=null;render()});
+render();
+})();
 </script>
 </body>
 </html>
