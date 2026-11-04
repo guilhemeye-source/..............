@@ -52,7 +52,7 @@ pre{background:var(--code);border:1px solid var(--line);border-radius:10px;paddi
   Configure esta URL com o endereço do seu Cloudflare Worker.
   O Worker guarda o token do GitHub em Secret, nunca neste HTML.
 */
-var API='https://SEU-WORKER.workers.dev';
+var API='https://pyllo-code-worker.pyllonillo-code.workers.dev';
 var K='gaveta:v1',app=document.getElementById('app'),unlocked={},fresh=null,viewing={},err='',pasted=null;
 var DB=null;
 function load(){if(!DB){try{DB=JSON.parse(localStorage.getItem(K))||{sites:{}}}catch(e){DB={sites:{}}}}return DB}
