@@ -1,609 +1,252 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pyllo Code</title>
-
 <style>
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  background: #000;
-  color: #fff;
-  font-family: Arial, sans-serif;
-}
-
-.container {
-  max-width: 750px;
-  margin: auto;
-  padding: 25px 18px;
-}
-
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #292929;
-  padding-bottom: 18px;
-}
-
-.logo {
-  font-size: 23px;
-  font-weight: bold;
-  letter-spacing: -1px;
-}
-
-.status {
-  color: #888;
-  font-size: 12px;
-}
-
-h2 {
-  font-size: 17px;
-  margin-top: 30px;
-}
-
-p {
-  color: #999;
-  font-size: 13px;
-}
-
-input, textarea {
-  width: 100%;
-  background: #090909;
-  color: white;
-  border: 1px solid #303030;
-  padding: 13px;
-  border-radius: 6px;
-  outline: none;
-  margin-top: 8px;
-  font-size: 14px;
-}
-
-input:focus, textarea:focus {
-  border-color: white;
-}
-
-textarea {
-  min-height: 230px;
-  resize: vertical;
-  font-family: monospace;
-  line-height: 1.5;
-}
-
-button {
-  background: white;
-  color: black;
-  border: 1px solid white;
-  padding: 11px 17px;
-  border-radius: 5px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #ccc;
-}
-
-button.secondary {
-  background: transparent;
-  color: white;
-  border-color: #333;
-}
-
-button.delete {
-  background: transparent;
-  color: #aaa;
-  border-color: #333;
-}
-
-.actions {
-  display: flex;
-  gap: 9px;
-  flex-wrap: wrap;
-  margin-top: 13px;
-}
-
-.card {
-  background: #080808;
-  border: 1px solid #292929;
-  border-radius: 7px;
-  padding: 16px;
-  margin-top: 12px;
-}
-
-.file {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  border-bottom: 1px solid #222;
-  padding: 13px 0;
-}
-
-.file:last-child {
-  border: none;
-}
-
-.file-name {
-  font-size: 14px;
-  overflow-wrap: anywhere;
-}
-
-.file-actions {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.file-actions button {
-  padding: 7px 10px;
-  font-size: 11px;
-}
-
-pre {
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  background: #111;
-  border: 1px solid #292929;
-  padding: 13px;
-  border-radius: 5px;
-  font-size: 12px;
-  max-height: 350px;
-  overflow: auto;
-}
-
-.result {
-  display: none;
-  margin-top: 15px;
-}
-
-.link {
-  color: #fff;
-  overflow-wrap: anywhere;
-  font-size: 12px;
-}
-
-footer {
-  border-top: 1px solid #292929;
-  margin-top: 40px;
-  padding-top: 18px;
-  color: #666;
-  font-size: 11px;
-  text-align: center;
-}
-
-label {
-  font-size: 13px;
-  font-weight: bold;
-  display: block;
-  margin-top: 17px;
-}
-
-#message {
-  font-size: 13px;
-  margin-top: 12px;
-  color: #ddd;
-}
-
+*{box-sizing:border-box}
+body{margin:0;background:#080808;color:#f5f5f5;font-family:Arial,sans-serif}
+header{padding:20px;border-bottom:1px solid #292929;display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:21px;font-weight:bold;letter-spacing:1px}
+main{max-width:900px;margin:30px auto;padding:0 16px}
+h2{font-size:18px;margin:0 0 15px}
+.panel{background:#111;border:1px solid #292929;padding:18px;border-radius:10px;margin-bottom:20px}
+input,textarea{width:100%;background:#080808;color:white;border:1px solid #333;border-radius:6px;padding:12px;margin:7px 0 14px;font:14px Arial;outline:none}
+input:focus,textarea:focus{border-color:#aaa}
+textarea{min-height:250px;resize:vertical;font-family:monospace;line-height:1.5}
+button{background:#f5f5f5;color:#080808;border:0;padding:11px 16px;border-radius:6px;font-weight:bold;cursor:pointer}
+button.secondary{background:#222;color:#fff;border:1px solid #444}
+button.danger{background:#292929;color:#fff;border:1px solid #555}
+button:disabled{opacity:.5;cursor:not-allowed}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.item{border:1px solid #292929;padding:14px;border-radius:7px;margin-top:10px;background:#0b0b0b}
+.item-name{font-weight:bold;overflow-wrap:anywhere}
+.item small{display:block;color:#999;margin:6px 0 12px}
+#status{font-size:13px;color:#bbb;margin-top:12px;min-height:18px}
+#preview{display:none;white-space:pre-wrap;overflow-wrap:anywhere;background:#050505;border:1px solid #333;padding:14px;border-radius:6px;max-height:400px;overflow:auto;font:13px monospace}
+.empty{color:#888;font-size:14px;padding:12px 0}
+footer{text-align:center;color:#666;font-size:12px;padding:25px}
 </style>
 </head>
-
 <body>
 
-<div class="container">
-
 <header>
-  <div class="logo">PYLLO CODE.</div>
-  <div class="status">GITHUB REPOSITORY</div>
+  <div class="logo">PYLLO CODE</div>
+  <div style="font-size:12px;color:#888">PUBLIC CODE</div>
 </header>
 
-<p>Um lugar simples para publicar e compartilhar seus códigos.</p>
+<main>
+  <section class="panel">
+    <h2>Publicar código</h2>
 
-<h2>Publicar código</h2>
+    <label for="filename">Nome do código</label>
+    <input id="filename" placeholder="Exemplo: meu-script.lua" maxlength="80">
 
-<div class="card">
+    <label for="code">Código</label>
+    <textarea id="code" spellcheck="false" placeholder="Escreva ou cole seu código aqui..."></textarea>
 
-<label>Nome do arquivo</label>
-<input id="filename" type="text" placeholder="meuscript.lua">
+    <div class="actions">
+      <button id="publish">PUBLICAR</button>
+      <button class="secondary" id="clear">LIMPAR</button>
+    </div>
 
-<label>Código</label>
-<textarea id="code" placeholder="Cole seu código aqui..."></textarea>
+    <div id="status"></div>
+  </section>
 
-<div class="actions">
-  <button onclick="publish()">Publicar código</button>
-  <button class="secondary" onclick="clearForm()">Limpar</button>
-</div>
+  <section class="panel">
+    <h2>Códigos publicados</h2>
+    <div id="files"><div class="empty">Carregando códigos...</div></div>
+  </section>
 
-<div id="message"></div>
+  <section class="panel" id="viewer" style="display:none">
+    <h2 id="viewTitle">Visualizar código</h2>
+    <pre id="preview"></pre>
+    <div class="actions" style="margin-top:12px">
+      <button class="secondary" id="copyRaw">COPIAR RAW</button>
+      <button class="secondary" id="download">BAIXAR</button>
+      <button class="danger" id="delete">EXCLUIR</button>
+      <button class="secondary" id="close">FECHAR</button>
+    </div>
+    <div id="rawText" style="font-size:12px;color:#aaa;overflow-wrap:anywhere;margin-top:12px"></div>
+  </section>
+</main>
 
-<div class="result" id="result">
-  <p>Link RAW publicado:</p>
-  <div class="link" id="rawlink"></div>
-  <div class="actions">
-    <button onclick="copyLink()">Copiar link</button>
-  </div>
-</div>
-
-</div>
-
-<h2>Scripts publicados</h2>
-
-<div class="card">
-  <div class="actions" style="margin-top:0">
-    <button class="secondary" onclick="loadFiles()">Atualizar lista</button>
-  </div>
-  <div id="files">
-    <p>Carregando scripts...</p>
-  </div>
-</div>
-
-<h2>Conexão GitHub</h2>
-
-<div class="card">
-
-<label>Usuário do GitHub</label>
-<input id="owner" type="text" placeholder="Seu usuário">
-
-<label>Nome do repositório</label>
-<input id="repo" type="text" value="Osll-scripts">
-
-<label>Branch</label>
-<input id="branch" type="text" value="main">
-
-<label>Token de acesso</label>
-<input id="token" type="password" placeholder="Cole seu token aqui">
-
-<p>
-O token fica somente na memória desta página e não é salvo.
-Cada pessoa que publicar precisa ter permissão de escrita no repositório.
-</p>
-
-<div class="actions">
-  <button class="secondary" onclick="connect()">Conectar</button>
-</div>
-
-<div id="connection"></div>
-
-</div>
-
-<footer>
-  PY LLO CODE — SIMPLE CODE STORAGE
-</footer>
-
-</div>
+<footer>PYLLO CODE — SIMPLE CODE STORAGE</footer>
 
 <script>
-let CONFIG = {
-  owner: "",
-  repo: "Osll-scripts",
-  branch: "main"
-};
+const API_URL = "https://aphiw-code.guilhemeye.workers.dev";
 
-let TOKEN = "";
-let currentLink = "";
+const $ = id => document.getElementById(id);
+let selectedFile = null;
+let selectedRaw = "";
+let selectedCode = "";
 
-function connect() {
-  CONFIG.owner = document.getElementById("owner").value.trim();
-  CONFIG.repo = document.getElementById("repo").value.trim();
-  CONFIG.branch = document.getElementById("branch").value.trim();
-  TOKEN = document.getElementById("token").value.trim();
-
-  if (!CONFIG.owner || !CONFIG.repo || !CONFIG.branch || !TOKEN) {
-    document.getElementById("connection").textContent =
-      "Preencha todos os campos.";
-    return;
-  }
-
-  document.getElementById("connection").textContent =
-    "Configuração preenchida. Verificando acesso...";
-
-  loadFiles();
+function status(message){
+  $("status").textContent = message;
 }
 
-function api(path, options = {}) {
-  return fetch("https://api.github.com" + path, {
-    ...options,
-    headers: {
-      "Accept": "application/vnd.github+json",
-      "Authorization": "Bearer " + TOKEN,
-      "X-GitHub-Api-Version": "2022-11-28",
-      ...(options.headers || {})
-    }
-  });
+function safeName(name){
+  return name.trim().replace(/[^a-zA-Z0-9._-]/g,"-");
 }
 
-function repoPath() {
-  return "/repos/" +
-    encodeURIComponent(CONFIG.owner) + "/" +
-    encodeURIComponent(CONFIG.repo);
-}
+async function loadFiles(){
+  $("files").innerHTML = '<div class="empty">Carregando...</div>';
 
-function folderPath() {
-  return repoPath() + "/contents/scripts";
-}
-
-function safeName(name) {
-  return name
-    .trim()
-    .replace(/[^a-zA-Z0-9._-]/g, "-")
-    .replace(/-+/g, "-");
-}
-
-function encodeBase64(text) {
-  const bytes = new TextEncoder().encode(text);
-  let binary = "";
-  bytes.forEach(byte => binary += String.fromCharCode(byte));
-  return btoa(binary);
-}
-
-function setMessage(text) {
-  document.getElementById("message").textContent = text;
-}
-
-async function publish() {
-  if (!TOKEN || !CONFIG.owner) {
-    alert("Configure a conexão com o GitHub primeiro.");
-    return;
-  }
-
-  let name = safeName(
-    document.getElementById("filename").value
-  );
-
-  let code = document.getElementById("code").value;
-
-  if (!name || !code.trim()) {
-    setMessage("Preencha o nome e o código.");
-    return;
-  }
-
-  if (!/\.[a-zA-Z0-9]+$/.test(name)) {
-    name += ".lua";
-  }
-
-  if (code.length > 1500000) {
-    setMessage("Código muito grande.");
-    return;
-  }
-
-  setMessage("Publicando...");
-
-  try {
-    const path = folderPath() + "/" + encodeURIComponent(name);
-
-    let old = await api(path);
-
-    let body = {
-      message: "Publicar " + name,
-      content: encodeBase64(code),
-      branch: CONFIG.branch
-    };
-
-    if (old.ok) {
-      let data = await old.json();
-      body.sha = data.sha;
-    } else if (old.status !== 404) {
-      throw new Error("Não foi possível verificar o arquivo.");
-    }
-
-    let response = await api(path, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(body)
-    });
-
-    if (!response.ok) {
-      let error = await response.json();
-      throw new Error(error.message || "Erro ao publicar.");
-    }
-
-    currentLink =
-      "https://raw.githubusercontent.com/" +
-      CONFIG.owner + "/" +
-      CONFIG.repo + "/" +
-      CONFIG.branch + "/scripts/" +
-      name;
-
-    document.getElementById("rawlink").textContent =
-      currentLink;
-
-    document.getElementById("result").style.display = "block";
-
-    setMessage("Código publicado com sucesso!");
-
-    loadFiles();
-
-  } catch (error) {
-    setMessage("Erro: " + error.message);
-  }
-}
-
-async function loadFiles() {
-  const area = document.getElementById("files");
-
-  if (!CONFIG.owner || !CONFIG.repo) {
-    area.innerHTML = "<p>Configure o repositório primeiro.</p>";
-    return;
-  }
-
-  area.innerHTML = "<p>Carregando...</p>";
-
-  try {
-    const response = await api(folderPath() + "?ref=" +
-      encodeURIComponent(CONFIG.branch));
-
-    if (response.status === 404) {
-      area.innerHTML = "<p>Nenhum script encontrado. Publique o primeiro!</p>";
-      document.getElementById("connection").textContent =
-        "Repositório acessível. A pasta scripts será criada na primeira publicação.";
-      return;
-    }
-
-    if (!response.ok) {
-      throw new Error("Não foi possível acessar o repositório.");
-    }
+  try{
+    const response = await fetch(API_URL + "/api/files");
+    if(!response.ok) throw new Error("Não foi possível carregar a lista.");
 
     const files = await response.json();
+    $("files").innerHTML = "";
 
-    if (!Array.isArray(files)) {
-      throw new Error("A pasta scripts não é válida.");
-    }
-
-    const scripts = files.filter(file => file.type === "file");
-
-    document.getElementById("connection").textContent =
-      "Repositório conectado.";
-
-    if (!scripts.length) {
-      area.innerHTML = "<p>Nenhum script publicado.</p>";
+    if(!files.length){
+      $("files").innerHTML = '<div class="empty">Nenhum código publicado ainda.</div>';
       return;
     }
 
-    area.innerHTML = "";
-
-    scripts.forEach(file => {
+    files.forEach(file => {
       const item = document.createElement("div");
-      item.className = "file";
+      item.className = "item";
 
-      const name = document.createElement("span");
-      name.className = "file-name";
+      const name = document.createElement("div");
+      name.className = "item-name";
       name.textContent = file.name;
 
-      const actions = document.createElement("div");
-      actions.className = "file-actions";
+      const info = document.createElement("small");
+      info.textContent = "Arquivo publicado no GitHub";
 
-      const view = document.createElement("button");
-      view.className = "secondary";
-      view.textContent = "Ver";
-      view.onclick = () => viewFile(file.name);
+      const open = document.createElement("button");
+      open.textContent = "VISUALIZAR";
+      open.className = "secondary";
+      open.onclick = () => viewFile(file.name, file.rawUrl);
 
-      const copy = document.createElement("button");
-      copy.className = "secondary";
-      copy.textContent = "RAW";
-      copy.onclick = () => {
-        const url = rawURL(file.name);
-        navigator.clipboard.writeText(url);
-        alert("Link RAW copiado!");
-      };
+      item.append(name, info, open);
+      $("files").appendChild(item);
+    });
+  }catch(error){
+    $("files").innerHTML =
+      '<div class="empty">Erro ao carregar. Confira se o Worker foi configurado.</div>';
+  }
+}
 
-      const del = document.createElement("button");
-      del.className = "delete";
-      del.textContent = "Excluir";
-      del.onclick = () => deleteFile(file.name);
+async function viewFile(name, rawUrl){
+  try{
+    const response = await fetch(rawUrl);
+    if(!response.ok) throw new Error("Falha ao abrir o código.");
 
-      actions.append(view, copy, del);
-      item.append(name, actions);
-      area.appendChild(item);
+    selectedCode = await response.text();
+    selectedFile = name;
+    selectedRaw = rawUrl;
+
+    $("viewTitle").textContent = name;
+    $("preview").textContent = selectedCode;
+    $("preview").style.display = "block";
+    $("viewer").style.display = "block";
+    $("rawText").textContent = rawUrl;
+
+    $("viewer").scrollIntoView({behavior:"smooth"});
+  }catch(error){
+    alert("Não foi possível abrir esse código.");
+  }
+}
+
+$("publish").onclick = async () => {
+  const filename = safeName($("filename").value);
+  const code = $("code").value;
+
+  if(!filename || !code.trim()){
+    status("Preencha o nome e o código.");
+    return;
+  }
+
+  if(!/\.[a-zA-Z0-9]+$/.test(filename)){
+    status("Coloque a extensão do arquivo, por exemplo .lua");
+    return;
+  }
+
+  $("publish").disabled = true;
+  status("Publicando no GitHub...");
+
+  try{
+    const response = await fetch(API_URL + "/api/publish",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({filename,code})
     });
 
-  } catch (error) {
-    area.textContent = error.message;
-    document.getElementById("connection").textContent =
-      "Erro de conexão.";
+    const result = await response.json();
+
+    if(!response.ok) throw new Error(result.error || "Erro ao publicar.");
+
+    status("Publicado com sucesso! RAW: " + result.rawUrl);
+    $("filename").value = "";
+    $("code").value = "";
+    await loadFiles();
+    await viewFile(result.filename, result.rawUrl);
+  }catch(error){
+    status(error.message || "Não foi possível publicar.");
+  }finally{
+    $("publish").disabled = false;
   }
-}
+};
 
-function rawURL(name) {
-  return "https://raw.githubusercontent.com/" +
-    CONFIG.owner + "/" +
-    CONFIG.repo + "/" +
-    CONFIG.branch + "/scripts/" +
-    encodeURIComponent(name);
-}
+$("clear").onclick = () => {
+  $("filename").value = "";
+  $("code").value = "";
+  status("");
+};
 
-async function viewFile(name) {
-  try {
-    const response = await fetch(rawURL(name));
+$("copyRaw").onclick = async () => {
+  if(!selectedRaw) return;
+  await navigator.clipboard.writeText(selectedRaw);
+  status("Link RAW copiado!");
+};
 
-    if (!response.ok) throw new Error();
+$("download").onclick = () => {
+  if(!selectedFile) return;
+  const blob = new Blob([selectedCode],{type:"text/plain"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = selectedFile;
+  a.click();
+  URL.revokeObjectURL(url);
+};
 
-    const code = await response.text();
+$("delete").onclick = async () => {
+  if(!selectedFile) return;
+  const key = prompt("Digite a chave de administrador para excluir:");
+  if(!key) return;
 
-    const old = document.getElementById("preview");
-    if (old) old.remove();
+  if(!confirm("Deseja realmente excluir " + selectedFile + "?")) return;
 
-    const box = document.createElement("div");
-    box.id = "preview";
-    box.className = "card";
-
-    const title = document.createElement("strong");
-    title.textContent = name;
-
-    const pre = document.createElement("pre");
-    pre.textContent = code;
-
-    const close = document.createElement("button");
-    close.className = "secondary";
-    close.textContent = "Fechar";
-    close.onclick = () => box.remove();
-
-    box.append(title, pre, close);
-    document.getElementById("files").appendChild(box);
-
-  } catch {
-    alert("Não foi possível abrir o código.");
-  }
-}
-
-async function deleteFile(name) {
-  if (!confirm("Deseja excluir " + name + "?")) return;
-
-  try {
-    const path = folderPath() + "/" + encodeURIComponent(name);
-
-    const get = await api(path + "?ref=" +
-      encodeURIComponent(CONFIG.branch));
-
-    if (!get.ok) throw new Error();
-
-    const data = await get.json();
-
-    const response = await api(path, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json"
+  try{
+    const response = await fetch(API_URL + "/api/delete",{
+      method:"DELETE",
+      headers:{
+        "Content-Type":"application/json",
+        "x-admin-key":key
       },
-      body: JSON.stringify({
-        message: "Excluir " + name,
-        sha: data.sha,
-        branch: CONFIG.branch
-      })
+      body:JSON.stringify({filename:selectedFile})
     });
 
-    if (!response.ok) throw new Error();
+    const result = await response.json();
+    if(!response.ok) throw new Error(result.error || "Não foi possível excluir.");
 
-    alert("Arquivo excluído.");
-    loadFiles();
-
-  } catch {
-    alert("Não foi possível excluir o arquivo.");
+    $("viewer").style.display = "none";
+    status("Código excluído.");
+    await loadFiles();
+  }catch(error){
+    alert(error.message);
   }
-}
+};
 
-function copyLink() {
-  if (!currentLink) return;
+$("close").onclick = () => {
+  $("viewer").style.display = "none";
+};
 
-  navigator.clipboard.writeText(currentLink)
-    .then(() => alert("Link copiado!"))
-    .catch(() => alert("Não foi possível copiar."));
-}
-
-function clearForm() {
-  document.getElementById("filename").value = "";
-  document.getElementById("code").value = "";
-  document.getElementById("result").style.display = "none";
-  setMessage("");
-}
+loadFiles();
 </script>
-
 </body>
 </html>
