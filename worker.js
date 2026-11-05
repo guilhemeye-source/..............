@@ -9,8 +9,9 @@ function validFiles(files) { return Array.isArray(files) && files.length > 0 && 
 function makeId() { const bytes = new Uint8Array(9); crypto.getRandomValues(bytes); return Array.from(bytes, b => b.toString(16).padStart(2, "0")).join(""); }
 export default { async fetch(request, env) {
   if (request.method === "OPTIONS") return new Response(null, { headers: cors });
-  if (!env.SITES) return json({ error: "Armazenamento do site não configurado." }, 500);
   const url = new URL(request.url);
+  if (!url.pathname.startsWith("/api/") && env.ASSETS) return env.ASSETS.fetch(request);
+  if (!env.SITES) return json({ error: "Armazenamento do site não configurado." }, 500);
   const match = url.pathname.match(/^\/api\/sites\/([a-f0-9]{18})$/);
   if (request.method === "POST" && url.pathname === "/api/sites") {
     try { const data = await request.json(); const name = typeof data.name === "string" ? data.name.trim().slice(0, 80) : "Meu código"; if (!validFiles(data.files)) return json({ error: "Adicione pelo menos um arquivo válido." }, 400); const id = makeId(); const site = { id, name: name || "Meu código", files: data.files, createdAt: new Date().toISOString() }; await env.SITES.put(`site:${id}`, JSON.stringify(site)); return json({ id, name: site.name }); } catch { return json({ error: "Não foi possível salvar o código." }, 400); }
